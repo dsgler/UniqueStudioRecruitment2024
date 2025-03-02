@@ -79,7 +79,7 @@
     getInfo()
       .then((res) => {
         userInfo.setInfo(res.data);
-        res.data.applications[0] &&
+        !$latestInfo && res.data.applications[0] &&
           latestInfo.setApplication(res.data.applications[0]);
       })
       .catch((err) => {
