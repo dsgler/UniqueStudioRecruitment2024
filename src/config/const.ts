@@ -120,7 +120,8 @@ export const GENDERS = ["男", "女", "其他"] as const;
 
 export const GENDERS_EN = ["male", "female", "other"] as const;
 
-//ly：this part may change, could we get info from hust official
+// ly：this part may change, could we get info from hust official
+// ly: this part is outdate, now we get data from feishu api
 export const DEPARTMENTS = {
   电子信息与通信学院: [
     "通信工程",
@@ -288,8 +289,8 @@ export const DEPARTMENTS = {
   网络空间安全学院: ["未分流", "信息安全", "网络空间安全", "密码学"],
 } as const;
 
-//todo: translation
 //translation of the part below is too hard:(
+// ly: this part is outdate, now we get data from feishu api
 export const DEPARTMENTS_EN = {
   电子信息与通信学院: [
     "通信工程",
