@@ -33,8 +33,9 @@
   import { localeLanguage } from '../stores/localeLanguage';
   import uploadSvg from '../assets/upload.svg';
   import { isMobile } from '../stores/isMobile';
+  import { departments } from '../stores/departments';
   let editMode = false;
-  let colleges = Object.keys(DEPARTMENTS);
+  $: colleges = Object.keys($departments).sort();
   let isUploading = false;
   let showSignUpModal = false;
   let resume: File;
@@ -51,7 +52,7 @@
     is_quick = false,
   } = $latestInfo || {};
   //ly:this asset would be wrong but I just don't want to see TypeError :)
-  $: majors = DEPARTMENTS[institute as College] || [];
+  $: majors = $departments[institute as College] || [];
   $: ranks = $t('user.selector.rank') as unknown as string[];
   $: genders = $t('user.selector.gender') as unknown as string[];
   $: grades = $t('user.selector.grade') as unknown as string[];
