@@ -115,6 +115,9 @@
       grade,
       intro,
       referrer,
+      is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
+      is_project_c:
+        isProjectC === $t('user.selector.projectC')[0] ? 'true' : 'false',
     })) {
       formData.append(key, value);
     }
@@ -190,7 +193,7 @@
           intro,
           is_quick: isQuick === $t('user.quick') ? true : false,
           is_project_c:
-          isProjectC === $t('user.selector.projectC')[0] ? true : false,
+            isProjectC === $t('user.selector.projectC')[0] ? true : false,
         });
         Message.success($t('user.saveSuccess'));
       } catch (_err) {
