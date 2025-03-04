@@ -96,6 +96,7 @@ export const i18nConstants = {
       college: "college",
       isQuick: "SpeedRun",
       isQuickTips: "After sign up for SpeedRun, the written test process will be skipped, and there is no need to take the test after passing the group interview. If you do not pass the interview, you can continue with the normal process and participate in recruitment.",
+      projectCTips: "What is ProjectC?",
       quick: "yes",
       notQuick: "no",
       saveSuccess: "Saved successfully",
@@ -134,6 +135,7 @@ export const i18nConstants = {
         grade: GRADE_EN,
         gender: GENDERS_EN,
         isQuick: ["yes", "no"],
+        projectC: ["join", "disjoin"]
       }
     },
   },
@@ -235,6 +237,7 @@ export const i18nConstants = {
       college: "学院",
       isQuick: "是否快通",
       isQuickTips: "报名快速通道后，将跳过笔试流程，通过小组面试后无需进行熬测。若未通过面试，也可以继续进行正常流程参与招新",
+      projectCTips: "什么是ProjectC?",
       quick: "是",
       notQuick: "否",
       rank: "加权排名",
@@ -266,7 +269,8 @@ export const i18nConstants = {
         department: DEPARTMENTS,
         grade: GRADE,
         gender: GENDERS,
-        isQuick: ["是", "否"]
+        isQuick: ["是", "否"],
+        projectC: ["参加", "不参加"]
       }
     },
   },
