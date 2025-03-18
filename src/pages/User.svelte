@@ -257,7 +257,7 @@
         {/if}
       </div>
       <div class="flex mb-[1rem] -translate-y-2 w-full flex-row-reverse">
-        {#if $editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+        {#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
           <Popover style="white" direct="top" questionDirection="end">
             <Button
               onClick={() => (showSignUpModal = true)}
