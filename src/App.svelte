@@ -153,7 +153,7 @@
 >
   <div
     class={cx([
-      'py-[0.5rem] px-[4rem] max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700',
+      'py-[0.5rem] px-[4rem] fixed max-lg:px-[3rem] sm:grid grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700',
       hideTopBar ? 'translate-y-[-5rem]' : 'translate-y-0',
     ])}
   >
@@ -242,7 +242,7 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <div
-            on:click={() => $isMobile || (showAvatarDetail = !showAvatarDetail)}
+            on:click={() => (showAvatarDetail = !showAvatarDetail)}
             class=" bg-white w-[40px] h-[40px] max-sm:w-[32px] max-sm:h-[32px] max-sm:leading-[32px] max-sm:text-[12px] rounded-full text-text-3 cursor-pointer leading-[40px] text-center"
           >
             {$userInfo.name[0]}
@@ -250,15 +250,23 @@
           {#if showAvatarDetail}
             <div
               transition:slide
-              class="absolute bg-white w-[149px] rounded-[6px] py-[6px] top-[48px] right-0"
+              class="absolute bg-white w-[100px] rounded-[6px] py-[6px] top-[48px] right-0"
+              class:isMobile={"w-[149px]"}
             >
               <button
+                on:click={() =>{
+                  window.location.href =
+                    'https://sso2024.hustunique.com/user/edit-info'}}
+                class="max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
+                >{$t('header.userSettings')}
+              </button>
+              <button
                 on:click={() =>
-                  (window.location.href =
-                    'https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com')}
+                  {window.location.href =
+                    'https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com'}}
                 class="text-red-warning max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
-                >{$t('header.logout')}</button
-              >
+                >{$t('header.logout')}
+              </button>
             </div>
           {/if}
         </div>
@@ -270,6 +278,7 @@
   >
     <Groups />
   </div>
+  <div class="h-[80px] w-full sm:hidden"></div>
   <Router {routes} />
 </div>
 
