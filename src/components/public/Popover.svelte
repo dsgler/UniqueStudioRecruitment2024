@@ -10,6 +10,8 @@
   export let style: 'white' | 'black' = 'black';
   export let questionDirection:"front" | "end" = "front";
   export let className: String = '';
+  export let isShowImg = true;
+  export let shouldShow: boolean = true;
   let box: HTMLDivElement;
   let showContent = false;
   let showModal = false;
@@ -17,12 +19,17 @@
   let timerOut: number;
 
   const handleMouseMoveIn = () => {
+    if (!shouldShow) return;
+
+    console.log("in")
     clearTimeout(timerOut);
     timerIn = setTimeout(() => {
       showContent = true;
     }, 300);
   };
   const handleMouseMoveOut = () => {
+    if (!shouldShow) return;
+    console.log("out")
     clearTimeout(timerIn);
     timerOut = setTimeout(() => {
       showContent = false;
@@ -34,18 +41,22 @@
 <div
   role="tooltip"
   on:mouseenter={handleMouseMoveIn}
+  on:focus={handleMouseMoveIn}
   on:mouseleave={handleMouseMoveOut}
+  on:blur={handleMouseMoveOut}
   bind:this={box}
   class={cx(['relative w-fit max-sm:flex max-sm:gap-[8px]', questionDirection === "end" && "max-sm:flex-row-reverse", className])}
 >
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <img class="inline sm:hidden" on:click={() => showModal = true} src={question} alt="?" />
+  {#if isShowImg}
+    <img class="inline sm:hidden" on:click={() => showModal = true} src={question} alt="?" />
+  {/if}
   <slot name="children" />
   {#if showContent}
     <div
       transition:scale
       class={cx([
-        'absolute z-[90] max-sm:hidden rounded-[6px]',
+        'absolute z-[90] rounded-[6px]',
         style === 'black' ? 'shadow-drop' : 'shadow-card',
         direct === 'bottom' &&
           'top-[calc(100%_+_12px)]  origin-[top_center] left-[50%] translate-x-[-50%] ',

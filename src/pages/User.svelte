@@ -277,6 +277,7 @@
           necessary
           name={$t('user.name')}
           bind:content={$userInfo.name}
+          tips={$t("user.changeUserInfoTip")}
         />
         <SingleSelectInfo
           necessary
@@ -319,11 +320,17 @@
           name={$t('user.phone')}
           bind:content={$userInfo.phone}
         />
-        <SingleInputInfo
-          necessary
-          name={$t('user.email')}
-          bind:content={$userInfo.email}
-        />
+        <Popover direct="top" questionDirection="end" style="white" className="w-full">
+          <SingleInputInfo
+            necessary
+            name={$t('user.email')}
+            bind:content={$userInfo.email}
+            slot="children"
+          />
+          <p slot="content" class="w-[180px]">
+            {$t("user.changeUserInfoTip")}
+          </p>
+        </Popover>
         <SingleInputInfo
           {editMode}
           name={$t('user.recommender')}
