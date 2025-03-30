@@ -26,6 +26,7 @@
   import figlet from 'figlet';
   import chalk from 'chalk';
   import { drawFireWork } from './utils/firework';
+  import { editMode } from './stores/editMode';
   let canvas = document.createElement('canvas');
   let deleted = false;
   const easterEgg = (e: KeyboardEvent) => {
@@ -104,6 +105,11 @@
         Message.error($t('header.getInfoFailed'));
       });
   const handleRouterClick = (path: string) => {
+    if ($editMode){
+      Message.warning("请先退出编辑模式，以防数据丢失");
+      return;
+    }
+
     push(path);
   };
   const unsubscribeLocaleLanguage = localeLanguage.subscribe(() => {
