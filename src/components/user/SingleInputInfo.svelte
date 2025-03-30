@@ -7,6 +7,7 @@
   export let content: string;
   export let editMode: boolean = false;
   export let tips: string = "";
+  export let isDisabled: boolean = false;
 </script>
 
 <div class="flex gap-[1rem] items-center max-lg:my-[1.5rem]">
@@ -14,9 +15,9 @@
   {#if tips!==""}
   <Popover direct="top" questionDirection="end" style="white" className="w-full" isShowImg={false} shouldShow={editMode}>
     <input
-      disabled={!editMode}
+      disabled={isDisabled}
       placeholder={editMode ? $t('user.placeholder') : ""}
-      class={cx(["p-[4px_12px] w-full rounded-[8px] max-sm:text-sm text-text-1 bg-[#FAFAFA] h-[48px] max-sm:h-[42px] transition-all outline-none border-[1px]  focus:border-[#165DFF]", editMode ? "bg-transparent border-gray-200" : "border-transparent"])}
+      class={cx(["p-[4px_12px] w-full rounded-[8px] max-sm:text-sm text-text-1 bg-[#FAFAFA] h-[48px] max-sm:h-[42px] transition-all outline-none border-[1px]  focus:border-[#165DFF]", editMode && !isDisabled ? "bg-transparent border-gray-200" : "border-transparent"])}
       bind:value={content}
       slot="children"
     />
@@ -25,12 +26,12 @@
     </p>
   </Popover>
   {:else}
-  <input
-    disabled={!editMode}
-    placeholder={editMode ? $t('user.placeholder') : ""}
-    class={cx(["p-[4px_12px] w-full rounded-[8px] max-sm:text-sm text-text-1 bg-[#FAFAFA] h-[48px] max-sm:h-[42px] transition-all outline-none border-[1px]  focus:border-[#165DFF]", editMode ? "bg-transparent border-gray-200" : "border-transparent"])}
-    bind:value={content}
-  />
+    <input
+      disabled={isDisabled}
+      placeholder={editMode ? $t('user.placeholder') : ""}
+      class={cx(["p-[4px_12px] w-full rounded-[8px] max-sm:text-sm text-text-1 bg-[#FAFAFA] h-[48px] max-sm:h-[42px] transition-all outline-none border-[1px]  focus:border-[#165DFF]", editMode && !isDisabled ? "bg-transparent border-gray-200" : "border-transparent"])}
+      bind:value={content}
+    />
   {/if}
 </div>
 
