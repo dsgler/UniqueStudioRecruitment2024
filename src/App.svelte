@@ -26,6 +26,9 @@
   import figlet from 'figlet';
   import chalk from 'chalk';
   import { drawFireWork } from './utils/firework';
+  import { getDepartments } from './requests/config/getDepartments';
+  import { departments } from './stores/departments';
+  import { parseDepartments } from './utils/parseDepartments';
   let canvas = document.createElement('canvas');
   let deleted = false;
   const easterEgg = (e: KeyboardEvent) => {
@@ -76,7 +79,7 @@
     getInfo()
       .then((res) => {
         userInfo.setInfo(res.data);
-        res.data.applications[0] &&
+        !$latestInfo && res.data.applications[0] &&
           latestInfo.setApplication(res.data.applications[0]);
       })
       .catch((err) => {
@@ -103,6 +106,9 @@
         }
         Message.error($t('header.getInfoFailed'));
       });
+  $departments.length || getDepartments().then((resp) => {
+    departments.setDepartments(parseDepartments(resp.data.nodes))
+  })
   const handleRouterClick = (path: string) => {
     push(path);
   };

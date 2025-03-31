@@ -33,8 +33,9 @@
   import { localeLanguage } from '../stores/localeLanguage';
   import uploadSvg from '../assets/upload.svg';
   import { isMobile } from '../stores/isMobile';
+  import { departments } from '../stores/departments';
   let editMode = false;
-  let colleges = Object.keys(DEPARTMENTS);
+  $: colleges = Object.keys($departments).sort();
   let isUploading = false;
   let showSignUpModal = false;
   let resume: File;
@@ -49,19 +50,24 @@
     intro = '',
     uid = '',
     is_quick = false,
+    is_project_c = false,
   } = $latestInfo || {};
   //ly:this asset would be wrong but I just don't want to see TypeError :)
-  $: majors = DEPARTMENTS[institute as College] || [];
+  $: majors = $departments[institute as College] || [];
   $: ranks = $t('user.selector.rank') as unknown as string[];
   $: genders = $t('user.selector.gender') as unknown as string[];
   $: grades = $t('user.selector.grade') as unknown as string[];
   let isQuick = is_quick ? $t('user.quick') : $t('user.notQuick');
+  let isProjectC = is_project_c
+    ? $t('user.selector.projectC')[0]
+    : $t('user.selector.projectC')[1];
   localeLanguage.subscribe(() => {
     Promise.resolve().then(() => {
       isQuick = is_quick ? $t('user.quick') : $t('user.notQuick');
     });
   });
   $: quicks = $t('user.selector.isQuick') as unknown as string[];
+  $: projectC = $t('user.selector.projectC') as unknown as string[];
   const downloadResume = () => {
     getResume(
       uid,
@@ -79,6 +85,7 @@
       intro = '',
       uid = '',
       is_quick = false,
+      is_project_c = false,
     } = $latestInfo || {});
     editMode = false;
   };
@@ -92,6 +99,8 @@
         grade,
         intro,
         is_quick: isQuick === $t('user.quick') ? true : false,
+        is_project_c:
+          isProjectC === $t('user.selector.projectC')[0] ? true : false,
       })
     )
       return;
@@ -106,6 +115,9 @@
       grade,
       intro,
       referrer,
+      is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
+      is_project_c:
+        isProjectC === $t('user.selector.projectC')[0] ? 'true' : 'false',
     })) {
       formData.append(key, value);
     }
@@ -125,7 +137,7 @@
       });
   };
   const saveApplicationInfo = async () => {
-    if(isUploading) return;
+    if (isUploading) return;
     isUploading = true;
     if (
       !$checkNecessaryInfo({
@@ -136,12 +148,14 @@
         grade,
         intro,
         is_quick: isQuick === $t('user.quick') ? true : false,
+        is_project_c:
+          isProjectC === $t('user.selector.projectC')[0] ? true : false,
       })
     ) {
       isUploading = false;
       return;
     }
-      
+
     if (
       $recruitment &&
       $recruitment.uid === $userInfo.applications[0].recruitment_id &&
@@ -160,6 +174,8 @@
         intro,
         referrer,
         is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
+        is_project_c:
+          isProjectC === $t('user.selector.projectC')[0] ? 'true' : 'false',
       })) {
         formData.append(key, value);
       }
@@ -176,6 +192,8 @@
           grade,
           intro,
           is_quick: isQuick === $t('user.quick') ? true : false,
+          is_project_c:
+            isProjectC === $t('user.selector.projectC')[0] ? true : false,
         });
         Message.success($t('user.saveSuccess'));
       } catch (_err) {
@@ -191,6 +209,8 @@
         grade,
         intro,
         is_quick: isQuick === $t('user.quick') ? true : false,
+        is_project_c:
+          isProjectC === $t('user.selector.projectC')[0] ? true : false,
       });
       Message.success($t('user.saveSuccess'));
     }
@@ -339,7 +359,7 @@
           onChange={(item) => (group = item.toLowerCase())}
           selectItems={['AI', 'Design', 'Game', 'Lab', 'Mobile', 'PM', 'Web']}
         />
-        <div class="col-span-2 max-w-full gap-[1rem]">
+        <div class="col-span-1 max-w-full gap-[1rem]">
           <Popover
             style="white"
             direct="left-top"
@@ -355,6 +375,29 @@
               selectItems={quicks}
             />
             <p slot="content" class="w-[300px]">{$t('user.isQuickTips')}</p>
+          </Popover>
+        </div>
+        <div class="col-span-1 max-w-full gap-[1rem]">
+          <Popover
+            style="white"
+            direct="left-top"
+            className="w-full max-sm:mt-[-1.5rem]"
+          >
+            <SingleSelectInfo
+              className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
+              slot="children"
+              {editMode}
+              necessary
+              name="ProjectC"
+              bind:content={isProjectC}
+              selectItems={projectC}
+            />
+            <a
+              slot="content"
+              class="text-blue-300 cursor-pointer w-[300px]"
+              href="https://guidebook.hustunique.com/docs/ProjectC"
+              target="_blank">{$t('user.projectCTips')}</a
+            >
           </Popover>
         </div>
         <div class="flex col-span-2 gap-[1rem]">

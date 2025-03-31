@@ -12,6 +12,7 @@ export interface Application {
   group: string;
   intro: string;
   is_quick: boolean;
+  is_project_c?: boolean;
   referrer: string;
   resume: string;
   abandoned: boolean;
@@ -28,12 +29,17 @@ export interface Application {
 
 export type EditableInfo = Pick<
   Application,
-  "grade" | "institute" | "major" | "rank" | "group" | "intro" | "referrer" | "is_quick"
+  | "grade"
+  | "institute"
+  | "major"
+  | "rank"
+  | "group"
+  | "intro"
+  | "referrer"
+  | "is_quick"
+  | "is_project_c"
 >;
 
-export type NecessaryInfo = Omit<
-  EditableInfo,
-  "referrer"
->;
+export type NecessaryInfo = Omit<EditableInfo, "referrer">;
 
 export type Step = keyof typeof Step;
