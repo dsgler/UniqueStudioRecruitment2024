@@ -20,16 +20,12 @@
 
   const handleMouseMoveIn = () => {
     if (!shouldShow) return;
-
-    console.log("in")
     clearTimeout(timerOut);
     timerIn = setTimeout(() => {
       showContent = true;
     }, 300);
   };
   const handleMouseMoveOut = () => {
-    if (!shouldShow) return;
-    console.log("out")
     clearTimeout(timerIn);
     timerOut = setTimeout(() => {
       showContent = false;
@@ -40,10 +36,8 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div
   role="tooltip"
-  on:mouseenter={handleMouseMoveIn}
-  on:focus={handleMouseMoveIn}
-  on:mouseleave={handleMouseMoveOut}
-  on:blur={handleMouseMoveOut}
+  on:pointerover={handleMouseMoveIn}
+  on:pointerout={handleMouseMoveOut}
   bind:this={box}
   class={cx(['relative w-fit max-sm:flex max-sm:gap-[8px]', questionDirection === "end" && "max-sm:flex-row-reverse", className])}
 >

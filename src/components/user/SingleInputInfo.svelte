@@ -13,7 +13,7 @@
 <div class="flex gap-[1rem] items-center max-lg:my-[1.5rem]">
   <p class="  max-sm:text-sm shrink-0">{@html necessary ? `<span class="text-blue-300">*</span>` : " "}{name}</p>
   {#if tips!==""}
-  <Popover direct="top" questionDirection="end" style="white" className="w-full" isShowImg={false} shouldShow={editMode}>
+  <Popover direct="top" questionDirection="end" style="white" className="w-full" shouldShow={editMode}>
     <input
       disabled={isDisabled}
       placeholder={editMode ? $t('user.placeholder') : ""}

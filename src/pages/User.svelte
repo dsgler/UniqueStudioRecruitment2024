@@ -322,6 +322,7 @@
           necessary
           name={$t('user.phone')}
           bind:content={$userInfo.phone}
+          isDisabled={true}
         />
         <SingleInputInfo
           necessary
