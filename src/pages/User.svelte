@@ -388,14 +388,14 @@
               slot="children"
               {editMode}
               necessary
-              name="ProjectC"
+              name="Blockchain"
               bind:content={isProjectC}
               selectItems={projectC}
             />
             <a
               slot="content"
               class="text-blue-300 cursor-pointer w-[300px]"
-              href="https://guidebook.hustunique.com/docs/ProjectC"
+              href="https://guidebook.hustunique.com/docs/Blockchain"
               target="_blank">{$t('user.projectCTips')}</a
             >
           </Popover>
