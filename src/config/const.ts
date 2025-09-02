@@ -28,6 +28,7 @@ export enum GROUP {
   MOBILE = "Mobile",
   PM = "PM",
   DESIGN = "Design",
+  BLOCKCHAIN = "Blockchain",
 }
 
 export const Group = {
@@ -40,6 +41,7 @@ export const Group = {
   ios: GROUP.IOS,
   design: GROUP.DESIGN,
   mobile: GROUP.MOBILE,
+  blockchain: GROUP.BLOCKCHAIN,
 };
 
 export const DeprecatedGroups = ["android", "ios"];

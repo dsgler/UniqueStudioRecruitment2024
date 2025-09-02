@@ -357,7 +357,7 @@
           name={$t('user.group')}
           content={Group[group] || ''}
           onChange={(item) => (group = item.toLowerCase())}
-          selectItems={['AI', 'Design', 'Game', 'Lab', 'Mobile', 'PM', 'Web']}
+          selectItems={['AI', 'Design', 'Game', 'Lab', 'Mobile', 'PM', 'Web', 'Blockchain']}
         />
         <div class="col-span-1 max-w-full gap-[1rem]">
           <Popover
