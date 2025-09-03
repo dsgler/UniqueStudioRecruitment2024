@@ -384,7 +384,7 @@
             className="w-full max-sm:mt-[-1.5rem]"
           >
             <SingleSelectInfo
-              className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
+              className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] cursor-help"
               slot="children"
               {editMode}
               necessary
@@ -392,12 +392,14 @@
               bind:content={isProjectC}
               selectItems={projectC}
             />
-            <a
-              slot="content"
-              class="text-blue-300 cursor-pointer w-[300px]"
-              href="https://guidebook.hustunique.com/docs/Blockchain"
-              target="_blank">{$t('user.projectCTips')}</a
-            >
+            <p slot="content" class="w-[300px]">
+              {$t('user.BlockchainTips')}
+              <a
+                class="text-blue-300 cursor-pointer"
+                href="https://guidebook.hustunique.com/docs/Blockchain"
+                target="_blank">{$t('user.projectCTips')}</a
+              >
+            </p>
           </Popover>
         </div>
         <div class="flex col-span-2 gap-[1rem]">
