@@ -164,7 +164,7 @@ export class Http {
 
 export const http = new Http({
   prefix: "",
-  apiEndpoint: "https://dev.back.recruitment2023.hustunique.com",
+  apiEndpoint: "/api",
   headers: {
     "Content-Type": "application/json",
     accept: "application/json, text/plain, */*"
