@@ -3,6 +3,7 @@
   import UserInfoTitle from '../components/user/UserInfoTitle.svelte';
   import SingleInputInfo from '../components/user/SingleInputInfo.svelte';
   import SingleSelectInfo from '../components/user/SingleSelectInfo.svelte';
+  import SearchableSelectInfo from '../components/user/SearchableSelectInfo.svelte';
   import edit from '/src/assets/edit.svg';
   import cx from 'clsx';
   import Button from '../components/public/Button.svelte';
@@ -292,6 +293,9 @@
           </Popover>
         {/if}
       </div>
+      {#if editMode}
+      <p class="mb-[1rem] text-text-4 mt-[-1rem]">*请在<a class="text-blue-400" href="https://sso2024.hustunique.com/">账号管理</a>页面修改姓名、性别等基本信息</p>
+      {/if}
       <div class=" lg:grid lg:grid-cols-2 mb-[2rem] w-full gap-[2rem]">
         <SingleInputInfo
           necessary
@@ -311,7 +315,7 @@
           bind:content={grade}
           selectItems={grades}
         />
-        <SingleSelectInfo
+        <SearchableSelectInfo
           selectItems={colleges}
           {editMode}
           onChange={() => (major = '')}
@@ -319,7 +323,7 @@
           name={$t('user.college')}
           bind:content={institute}
         />
-        <SingleSelectInfo
+        <SearchableSelectInfo
           placeholder={majors.length ? '' : '请选择学院'}
           selectItems={majors}
           {editMode}

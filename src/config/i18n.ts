@@ -8,6 +8,7 @@ export const i18nConstants = {
       info: "Resume",
       avatar: "Change avatar",
       logout: "Log out",
+      accountManagement: "Manage Account",
       language: "language",
       getInfoFailed: "get info failed"
     },
@@ -147,6 +148,7 @@ export const i18nConstants = {
       info: "个人信息",
       avatar: "更换头像",
       logout: "退出登录",
+      accountManagement: "账号管理",
       language: "语言",
       getInfoFailed: "获取信息失败"
     },

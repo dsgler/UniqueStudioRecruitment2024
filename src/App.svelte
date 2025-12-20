@@ -261,6 +261,13 @@
               <button
                 on:click={() =>
                   (window.location.href =
+                    'https://sso2024.hustunique.com/')}
+                class="max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
+                >{$t('header.accountManagement')}</button
+              >
+              <button
+                on:click={() =>
+                  (window.location.href =
                     'https://sso2024.hustunique.com/login?logout=true&from=join2024.hustunique.com')}
                 class="text-red-warning max-md:h-[32px] h-[46px] hover:bg-gray-150 leading-[46px] max-md:leading-[32px] text-center w-full"
                 >{$t('header.logout')}</button
