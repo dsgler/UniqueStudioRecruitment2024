@@ -25,6 +25,8 @@ export interface Application {
   user_detail: null;
   interview_selections: SingleTime[];
   comments: null;
+  answer?: string;
+  title?: string;
 }
 
 export type EditableInfo = Pick<

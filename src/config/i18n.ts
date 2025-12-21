@@ -44,7 +44,8 @@ export const i18nConstants = {
         viewLink: "View the latest {writtenTest}",
         downloadError: "get written questionnaire failed or no questionnaire yet",
         uploadSuccess: "upload success",
-        uploadError: "upload failed"
+        uploadError: "upload failed",
+        myAnswer: "my answer",
       },
       timeSelector: {
         chooseSuccess: "Selection succeed",
@@ -75,7 +76,7 @@ export const i18nConstants = {
         input: "Fill out",
         change: "Edit ",
         viewLink: "View latest link",
-        uploadWrittenTest: "Upload answers",
+        uploadWrittenTest: "Upload ",
         selectWrittenTest: "Select answers",
         groupInterviewTips: "Group interviews will be conducted by students from the intended group. Please select a time first.",
         selectTime: "Select Time",
@@ -185,7 +186,8 @@ export const i18nConstants = {
         viewLink: "查看最新的{writtenTest}",
         downloadError: "获取笔试/问卷失败或暂无笔试/问卷",
         uploadSuccess: "上传成功",
-        uploadError: "上传失败"
+        uploadError: "上传失败",
+        myAnswer: "我的答案",
       },
       timeSelector: {
         chooseSuccess: "修改成功",
@@ -216,8 +218,8 @@ export const i18nConstants = {
         notSignUpTips: "请填写基础信息、意向组别、简历等用于报名，帮助我们更好地了解你。",
         signUpTips: "你已经成功报名{recruitment}{group}组，报名结束前你可以随时修改个人信息。",
         viewLink: "查看最新笔试/问卷",
-        uploadWrittenTest: "上传笔试结果",
-        selectWrittenTest: "选择笔试结果",
+        uploadWrittenTest: "上传 ",
+        selectWrittenTest: "选择作答文件",
         groupInterviewTips: "组面由意向组别的同学负责面试，请先选择时间",
         selectTime: "选择时间",
         confirm: "确定",

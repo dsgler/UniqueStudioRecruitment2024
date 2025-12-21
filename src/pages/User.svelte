@@ -63,6 +63,7 @@
   let isProjectC = is_project_c
     ? $t("user.selector.projectC")[0]
     : $t("user.selector.projectC")[1];
+
   localeLanguage.subscribe(() => {
     Promise.resolve().then(() => {
       isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
