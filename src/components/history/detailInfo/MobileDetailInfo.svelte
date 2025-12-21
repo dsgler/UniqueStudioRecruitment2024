@@ -20,6 +20,7 @@
   import { Message } from '../../../utils/Message';
   import { uploadWrittenTest } from '../../../requests/application/uploadWrittenTest';
   import { selectedTimes } from '../../../stores/selectedTimes';
+  import { globalLoading } from '../../../stores/globalLoading';
   let openGroupInterviewTimeSelector = false;
   let openTeamInterviewTimeSelector = false;
   let writtenTestLink = '';
@@ -40,6 +41,7 @@
     } else {
       if(isUploading) return;
       isUploading = true;
+      globalLoading.set(true);
       const formData = new FormData();
       formData.append('file', file);
       uploadWrittenTest(applicationInfo.uid, formData)
@@ -51,6 +53,7 @@
           Message.error($t('history.writeTest.uploadError'));
         }).finally(() => {
           isUploading = false;
+          globalLoading.set(false);
         });
     }
   };

@@ -35,6 +35,7 @@
   import uploadSvg from '../assets/upload.svg';
   import { isMobile } from '../stores/isMobile';
   import { departments } from '../stores/departments';
+  import { globalLoading } from '../stores/globalLoading';
   let editMode = false;
   $: colleges = Object.keys($departments).sort();
   let isUploading = false;
@@ -122,6 +123,7 @@
     })) {
       formData.append(key, value);
     }
+    globalLoading.set(true);
     signUpRecruitment(formData)
       .then(() => {
         Message.success($t('user.signUpSuccess'));
@@ -135,11 +137,17 @@
       })
       .catch((_err) => {
         Message.error($t('user.signUpFail'));
+      })
+      .finally(() => {
+        globalLoading.set(false);
       });
   };
   const saveApplicationInfo = async () => {
     if (isUploading) return;
     isUploading = true;
+    if (resume) {
+      globalLoading.set(true);
+    }
     if (
       !$checkNecessaryInfo({
         rank,
@@ -154,6 +162,7 @@
       })
     ) {
       isUploading = false;
+      globalLoading.set(false);
       return;
     }
 
@@ -216,6 +225,7 @@
       Message.success($t('user.saveSuccess'));
     }
     isUploading = false;
+    globalLoading.set(false);
     editMode = false;
   };
 </script>

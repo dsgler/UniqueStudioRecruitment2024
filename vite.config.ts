@@ -12,7 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
         cookieDomainRewrite: {
-          "*": ""
+          "*": "hustunique.com"
+        },
+        bypass(req) {
+          delete req.headers["origin"];
+          delete req.headers["referer"];
         },
       }
     }

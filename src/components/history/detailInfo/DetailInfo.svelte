@@ -23,6 +23,7 @@
   import { Message } from '../../../utils/Message';
   import { onMount } from 'svelte';
   import { getWrittenTest } from '../../../requests/recruitment/getWrittenTest';
+  import { globalLoading } from '../../../stores/globalLoading';
   export let step: UserStep;
   export let applicationInfo: Application;
   let selectedTimes = applicationInfo?.interview_selections?.map(
@@ -44,6 +45,7 @@
     } else {
       if (isUploading) return;
       isUploading = true;
+      globalLoading.set(true);
       const formData = new FormData();
       formData.append('file', file);
       uploadWrittenTest(applicationInfo.uid, formData)
@@ -55,6 +57,7 @@
           Message.error($t('history.writeTest.uploadError'));
         }).finally(() => {
           isUploading = false;
+          globalLoading.set(false);
         });
     }
   };

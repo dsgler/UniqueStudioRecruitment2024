@@ -10,7 +10,8 @@ export const i18nConstants = {
       logout: "Log out",
       accountManagement: "Manage Account",
       language: "language",
-      getInfoFailed: "get info failed"
+      getInfoFailed: "get info failed",
+      loading: "Loading..."
     },
     history: {
       records: "Application Records",
@@ -150,7 +151,8 @@ export const i18nConstants = {
       logout: "退出登录",
       accountManagement: "账号管理",
       language: "语言",
-      getInfoFailed: "获取信息失败"
+      getInfoFailed: "获取信息失败",
+      loading: "加载中..."
     },
     history: {
       records: "申请记录",
