@@ -44,6 +44,8 @@ export const Group = {
   blockchain: GROUP.BLOCKCHAIN,
 };
 
+export const GroupGroup = [[GROUP.WEB, GROUP.LAB, GROUP.AI, GROUP.GAME, GROUP.PM, GROUP.DESIGN, GROUP.MOBILE], [GROUP.BLOCKCHAIN]];
+
 export const DeprecatedGroups = ["android", "ios"];
 
 export const Step = {
@@ -513,6 +515,7 @@ export const NecessaryInfoTitle = {
   major: "专业",
   rank: "加权",
   group: "意向组别",
+  groups: "意向组别",
   intro: "自我介绍",
 } as const;
 
@@ -522,5 +525,6 @@ export const NecessaryInfoTitleEn = {
   major: "major",
   rank: "rank",
   group: "intention group",
+  groups: "intention groups",
   intro: "Self introduction",
 } as const;

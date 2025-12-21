@@ -98,7 +98,7 @@
             changeInfo: `<span
          class="text-blue-300 underline cursor-pointer go-user">${$t('history.signUpTips.changeInfo')}</span
       >`,
-            group: Group[$userInfo.applications[0].group],
+            group: Group[$userInfo.applications[0]?.group],
             recruitment: $parseTitle($recruitment.name),
           })
         : $t('history.signUpTips.notSignInTips', {

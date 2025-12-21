@@ -27,18 +27,21 @@ export interface Application {
   comments: null;
 }
 
+export type ApplicationMutipleGroups = Omit<Application, "group" | "abandoned" | "rejected" | "step" | "interview_allocations_group" | "interview_allocations_team" | "interview_selections" | "comments"> & {
+  groups: string[];
+};
+
 export type EditableInfo = Pick<
   Application,
   | "grade"
   | "institute"
   | "major"
   | "rank"
-  | "group"
   | "intro"
   | "referrer"
   | "is_quick"
   | "is_project_c"
->;
+> & { groups: string[] };
 
 export type NecessaryInfo = Omit<EditableInfo, "referrer">;
 

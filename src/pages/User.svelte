@@ -13,6 +13,7 @@
     GENDERS,
     GRADE,
     Group,
+    GroupGroup,
     RANK,
   } from '../config/const';
   import type { College } from '../types';
@@ -34,18 +35,21 @@
   import uploadSvg from '../assets/upload.svg';
   import { isMobile } from '../stores/isMobile';
   import { departments } from '../stores/departments';
+  import MultiSelectInfo from '../components/user/MultiSelectInfo.svelte';
+  import type { Application } from '../types/application';
   let editMode = false;
   $: colleges = Object.keys($departments).sort();
   let isUploading = false;
   let showSignUpModal = false;
   let resume: File;
   let fileInput: HTMLInputElement;
+  // groups 应该能申请任意多个组
   let {
     rank = '',
     referrer = '',
     major = '',
     institute = '',
-    group = '',
+    groups = [],
     grade = '',
     intro = '',
     uid = '',
@@ -80,7 +84,7 @@
       referrer = '',
       major = '',
       institute = '',
-      group = '',
+      groups = [],
       grade = '',
       intro = '',
       uid = '',
@@ -95,7 +99,7 @@
         rank,
         major,
         institute,
-        group,
+        groups,
         grade,
         intro,
         is_quick: isQuick === $t('user.quick') ? true : false,
@@ -104,64 +108,7 @@
       })
     )
       return;
-    const formData = new FormData();
-    formData.append('recruitment_id', $recruitment.uid);
-    resume && formData.append('resume', resume);
-    for (const [key, value] of Object.entries({
-      rank,
-      major,
-      institute,
-      group,
-      grade,
-      intro,
-      referrer,
-      is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
-      is_project_c:
-        isProjectC === $t('user.selector.projectC')[0] ? 'true' : 'false',
-    })) {
-      formData.append(key, value);
-    }
-    signUpRecruitment(formData)
-      .then(() => {
-        Message.success($t('user.signUpSuccess'));
-        showSignUpModal = false;
-        editMode = false;
-        return getInfo();
-      })
-      .then((res) => {
-        userInfo.setInfo(res.data);
-        latestInfo.setApplication(res.data.applications[0]);
-      })
-      .catch((_err) => {
-        Message.error($t('user.signUpFail'));
-      });
-  };
-  const saveApplicationInfo = async () => {
-    if (isUploading) return;
-    isUploading = true;
-    if (
-      !$checkNecessaryInfo({
-        rank,
-        major,
-        institute,
-        group,
-        grade,
-        intro,
-        is_quick: isQuick === $t('user.quick') ? true : false,
-        is_project_c:
-          isProjectC === $t('user.selector.projectC')[0] ? true : false,
-      })
-    ) {
-      isUploading = false;
-      return;
-    }
-
-    if (
-      $recruitment &&
-      $recruitment.uid === $userInfo.applications[0].recruitment_id &&
-      !$userInfo.applications[0].rejected &&
-      !$userInfo.applications[0].abandoned
-    ) {
+    groups.forEach(group => {
       const formData = new FormData();
       formData.append('recruitment_id', $recruitment.uid);
       resume && formData.append('resume', resume);
@@ -174,26 +121,81 @@
         intro,
         referrer,
         is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
-        is_project_c:
-          isProjectC === $t('user.selector.projectC')[0] ? 'true' : 'false',
       })) {
         formData.append(key, value);
       }
+      signUpRecruitment(formData)
+        .then(() => {
+          Message.success($t('user.signUpSuccess'));
+          showSignUpModal = false;
+          editMode = false;
+          return getInfo();
+        })
+        .then((res) => {
+          userInfo.setInfo(res.data);
+          latestInfo.setApplication(res.data);
+        })
+        .catch((_err) => {
+          Message.error($t('user.signUpFail'));
+        });
+    })
+    
+  };
+  const saveApplicationInfo = async () => {
+    if (isUploading) return;
+    isUploading = true;
+    if (
+      !$checkNecessaryInfo({
+        rank,
+        major,
+        institute,
+        groups,
+        grade,
+        intro,
+        is_quick: isQuick === $t('user.quick') ? true : false,
+      })
+    ) {
+      isUploading = false;
+      return;
+    }
+
+    if (
+      $recruitment &&
+      $recruitment.uid === $userInfo.applications[0]?.recruitment_id &&
+      !$userInfo.applications[0]?.rejected &&
+      !$userInfo.applications[0]?.abandoned
+    ) { // 如果还在流程中，修改后端 application
+      const formData = new FormData();
+      formData.append('recruitment_id', $recruitment.uid);
+      resume && formData.append('resume', resume);
+      for (const [key, value] of Object.entries({
+        rank,
+        major,
+        institute,
+        grade,
+        intro,
+        referrer,
+        is_quick: isQuick === $t('user.quick') ? 'true' : 'false',
+      })) {
+        formData.append(key, value);
+      } 
       try {
-        await updateApplication($userInfo.applications[0].uid, formData);
-        const res = await getInfo();
+        $userInfo.applications.forEach(async app => { // lyx: 可能有多个申请
+          if (app.recruitment_id !== $recruitment.uid) return;
+          console.log('send application of group', app.group);
+          await updateApplication(app.uid, formData);
+        })
+        const res = await getInfo(); 
         userInfo.setInfo(res.data);
         latestInfo.updateInfo({
           rank,
           referrer,
           major,
           institute,
-          group,
+          groups,
           grade,
           intro,
           is_quick: isQuick === $t('user.quick') ? true : false,
-          is_project_c:
-            isProjectC === $t('user.selector.projectC')[0] ? true : false,
         });
         Message.success($t('user.saveSuccess'));
       } catch (_err) {
@@ -205,12 +207,10 @@
         referrer,
         major,
         institute,
-        group,
+        groups,
         grade,
         intro,
         is_quick: isQuick === $t('user.quick') ? true : false,
-        is_project_c:
-          isProjectC === $t('user.selector.projectC')[0] ? true : false,
       });
       Message.success($t('user.saveSuccess'));
     }
@@ -349,16 +349,37 @@
           name={$t('user.recommender')}
           bind:content={referrer}
         />
-        <SingleSelectInfo
-          editMode={editMode &&
-            (!$recruitment ||
+        <div class="col-span-1 max-w-full gap-[1rem]">
+          <Popover
+            style="white"
+            direct="left-top"
+            className="w-full max-sm:mt-[-1.5rem]"
+          >
+            <MultiSelectInfo
+              className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
+              slot="children"
+              editMode={editMode && (!$recruitment ||
               $userInfo?.applications[0]?.recruitment_id !== $recruitment.uid)}
-          necessary
-          name={$t('user.group')}
-          content={Group[group] || ''}
-          onChange={(item) => (group = item.toLowerCase())}
-          selectItems={['AI', 'Design', 'Game', 'Lab', 'Mobile', 'PM', 'Web', 'Blockchain']}
-        />
+              necessary
+              name={$t('user.group')}
+              selectedItems={
+                GroupGroup.map((group) =>
+                  group.find(g => groups.some(gg => Group[gg] === g)) || ''
+                )
+              }
+              onChange={(items) => {
+                groups = items
+                  .map((item) =>
+                    Object.entries(Group).find(([_, v]) => v === item)?.[0]
+                  )
+                  .filter((g) => g)
+              }}
+              selectItems={GroupGroup}
+              columnTitles={$t('user.selector.groupGroup')}
+            />
+            <p slot="content" class="w-[300px]">{$t('user.groupTips')}</p>
+          </Popover>
+        </div>
         <div class="col-span-1 max-w-full gap-[1rem]">
           <Popover
             style="white"
@@ -375,31 +396,6 @@
               selectItems={quicks}
             />
             <p slot="content" class="w-[300px]">{$t('user.isQuickTips')}</p>
-          </Popover>
-        </div>
-        <div class="col-span-1 max-w-full gap-[1rem]">
-          <Popover
-            style="white"
-            direct="left-top"
-            className="w-full max-sm:mt-[-1.5rem]"
-          >
-            <SingleSelectInfo
-              className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)] cursor-help"
-              slot="children"
-              {editMode}
-              necessary
-              name="Blockchain"
-              bind:content={isProjectC}
-              selectItems={projectC}
-            />
-            <p slot="content" class="w-[300px]">
-              {$t('user.BlockchainTips')}
-              <a
-                class="text-blue-300 cursor-pointer"
-                href="https://guidebook.hustunique.com/docs/Blockchain"
-                target="_blank">{$t('user.projectCTips')}</a
-              >
-            </p>
           </Popover>
         </div>
         <div class="flex col-span-2 gap-[1rem]">
@@ -467,13 +463,13 @@
             type="file"
             class="hidden"
           />
-        {:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0].resume}
+        {:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0]?.resume}
           <div
             on:click={downloadResume}
             class="cursor-pointer flex justify-center items-center sm:flex-col gap-[8px]"
           >
             <img src={word} alt="简历" />
-            {#await getRecruitmentById($userInfo.applications[0].recruitment_id) then res}
+            {#await getRecruitmentById($userInfo.applications[0]?.recruitment_id) then res}
               <p class="max-sm:text-sm">
                 {$parseTitle(res.data.name)}-{$userInfo.name}-{$t(
                   'user.resume'

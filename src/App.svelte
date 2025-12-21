@@ -80,7 +80,7 @@
       .then((res) => {
         userInfo.setInfo(res.data);
         !$latestInfo && res.data.applications[0] &&
-          latestInfo.setApplication(res.data.applications[0]);
+          latestInfo.setApplication(res.data);
       })
       .catch((err) => {
         if (err.message === 'authentication failed could not get uid') {
