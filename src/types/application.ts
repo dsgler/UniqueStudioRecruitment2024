@@ -25,6 +25,8 @@ export interface Application {
   user_detail: null;
   interview_selections: SingleTime[];
   comments: null;
+  answer?: string;
+  title?: string;
 }
 
 export type ApplicationMutipleGroups = Omit<Application, "group" | "abandoned" | "rejected" | "step" | "interview_allocations_group" | "interview_allocations_team" | "interview_selections" | "comments"> & {
