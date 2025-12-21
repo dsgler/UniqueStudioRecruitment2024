@@ -41,7 +41,6 @@
   import { globalLoading } from "../stores/globalLoading";
   import { editMode } from '../stores/editMode';
 
-  let editMode = false;
   $: colleges = Object.keys($departments).sort();
   let isUploading = false;
   let showSignUpModal = false;
