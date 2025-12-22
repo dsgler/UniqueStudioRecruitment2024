@@ -80,7 +80,7 @@
   const i18nKeys = Object.keys(i18nConstants) as (keyof typeof i18nConstants)[];
   ($userInfo && $latestInfo) ||
     getInfo()
-      .then((res) => {
+      .then(res => {
         userInfo.setInfo(res.data);
         !$latestInfo && res.data.applications[0] &&
           latestInfo.setApplication(res.data);
@@ -96,10 +96,10 @@
       });
   $recruitment ||
     getLatestRecruitment()
-      .then((res) => {
+      .then(res => {
         recruitment.setRecruitments(res.data);
       })
-      .catch((err) => {
+      .catch(err => {
         if (
           err.message === "authentication failed could not get uid" ||
           err.message ===
@@ -109,10 +109,30 @@
         }
         Message.error($t("header.getInfoFailed"));
       });
+
   $departments.length ||
-    getDepartments().then((resp) => {
-      departments.setDepartments(parseDepartments(resp.data.nodes));
-    });
+    getDepartments()
+      .then(resp => parseDepartments(resp.data.nodes))
+      .then(resp => {
+        const keys = Object.keys(resp);
+        if (keys.length <= 10) {
+          throw Error("专业个数过少");
+        }
+        const firstKey = keys[0];
+        if (typeof firstKey !== "string") {
+          throw Error("firstKey 应为 string");
+        }
+        if (!Array.isArray(resp[firstKey])) {
+          throw Error("元素不为数组");
+        }
+      })
+      .catch(async (e: Error) => {
+        console.error("解析 飞书 专业列表报错：", e.message, "进入fallback");
+        // 动态导入
+        return (await import("./config/DEPARTMENTS")).default;
+      })
+      .then(departments.setDepartments);
+
   const handleRouterClick = (path: string) => {
     if ($editMode){
       Message.warning("请先退出编辑模式，以防数据丢失");
@@ -168,8 +188,8 @@
 >
   <div
     class={cx([
-      'py-[0.5rem] px-[4rem] fixed max-lg:px-[3rem] sm:grid grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700',
-      hideTopBar ? 'translate-y-[-5rem]' : 'translate-y-0',
+      "py-[0.5rem] px-[4rem] max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] bg-[rgba(49,84,174,0.58)] max-sm:bg-[#315ED0] w-full h-[5rem] top-0 left-0 z-20 transition-all duration-700",
+      hideTopBar ? "translate-y-[-5rem]" : "translate-y-0",
     ])}
   >
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->

@@ -9,10 +9,7 @@
   import Button from "../components/public/Button.svelte";
   import word from "../assets/word.svg";
   import {
-    DEPARTMENTS,
-    DEPARTMENTS_EN,
     GENDERS,
-    GRADE,
     Group,
     GroupGroup,
     RANK,
