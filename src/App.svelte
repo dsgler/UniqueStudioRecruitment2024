@@ -57,7 +57,6 @@
 
 	let showAvatarDetail = false;
 	let showLanguageSelector = false;
-	// let isLoading = true;
 	let home: HTMLDivElement;
 	let user: HTMLDivElement;
 	let tabLine: HTMLDivElement;
@@ -77,13 +76,11 @@
 		lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 	};
 	const i18nKeys = Object.keys(i18nConstants) as (keyof typeof i18nConstants)[];
-	if (!($userInfo && $latestInfo)) {
+	if (!($userInfo && $latestInfo))
 		getInfo()
 			.then((res) => {
 				userInfo.setInfo(res.data);
-				if (!$latestInfo && res.data.applications[0]) {
-					latestInfo.setApplication(res.data);
-				}
+				if (!$latestInfo && res.data.applications[0]) latestInfo.setApplication(res.data);
 			})
 			.catch((err) => {
 				if (err.message === "authentication failed could not get uid") {
@@ -94,9 +91,7 @@
 			.finally(() => {
 				isLoading = false;
 			});
-	}
-
-	if (!$recruitment) {
+	if (!$recruitment)
 		getLatestRecruitment()
 			.then((res) => {
 				recruitment.setRecruitments(res.data);
@@ -110,13 +105,29 @@
 				}
 				Message.error($t("header.getInfoFailed"));
 			});
-	}
 
-	if (!$departments.length) {
-		getDepartments().then((resp) => {
-			departments.setDepartments(parseDepartments(resp.data.nodes));
-		});
-	}
+	if (!$departments.length)
+		getDepartments()
+			.then((resp) => parseDepartments(resp.data.nodes))
+			.then((resp) => {
+				const keys = Object.keys(resp);
+				if (keys.length <= 10) {
+					throw Error("专业个数过少");
+				}
+				const firstKey = keys[0];
+				if (typeof firstKey !== "string") {
+					throw Error("firstKey 应为 string");
+				}
+				if (!Array.isArray(resp[firstKey])) {
+					throw Error("元素不为数组");
+				}
+			})
+			.catch(async (e: Error) => {
+				console.error("解析 飞书 专业列表报错：", e.message, "进入fallback");
+				// 动态导入
+				return (await import("./config/DEPARTMENTS")).default;
+			})
+			.then(departments.setDepartments);
 
 	const handleRouterClick = (path: string) => {
 		if ($editMode) {
@@ -165,7 +176,7 @@
 <div class="sm:pt-[6rem] h-full min-h-screen overflow-scroll bg-[rgba(0,0,0,0.04)]">
 	<div
 		class={cx([
-			"max-lg:px-[3rem] sm:grid max-sm:flex max-md:px-[1rem] max-sm:bg-[#315ED0] top-0 left-0 fixed z-20 h-[5rem] w-full grid-cols-3 bg-[rgba(49,84,174,0.58)] px-[4rem] py-[0.5rem] transition-all duration-700",
+			"max-lg:px-[3rem] sm:fixed sm:grid sm:grid-cols-3 max-sm:flex max-md:px-[1rem] max-sm:bg-[#315ED0] top-0 left-0 z-20 h-[5rem] w-full bg-[rgba(49,84,174,0.58)] px-[4rem] py-[0.5rem] transition-all duration-700",
 			hideTopBar ? "translate-y-[-5rem]" : "translate-y-0"
 		])}
 	>
@@ -218,8 +229,8 @@
 										localeLanguage.updateLanguage(key);
 									}}
 									class="max-md:h-[32px] hover:bg-gray-150 max-md:leading-[32px] h-[46px] w-full text-center leading-[46px]"
-									>{LANGUAGES[key]}
-								</button>
+									>{LANGUAGES[key]}</button
+								>
 							{/each}
 						</div>
 					{/if}

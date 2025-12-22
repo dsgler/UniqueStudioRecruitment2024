@@ -26,10 +26,8 @@
 	import { getInfo } from "../requests/user/getInfo";
 	import { localeLanguage } from "../stores/localeLanguage";
 	import uploadSvg from "../assets/upload.svg";
-	// import { isMobile } from "../stores/isMobile";
 	import { departments } from "../stores/departments";
 	import MultiSelectInfo from "../components/user/MultiSelectInfo.svelte";
-	// import type { Application } from "../types/application";
 	import { globalLoading } from "../stores/globalLoading";
 	import { editMode } from "../stores/editMode";
 

@@ -1,6 +1,4 @@
 import {
-	DEPARTMENTS,
-	DEPARTMENTS_EN,
 	GENDERS,
 	GENDERS_EN,
 	GRADE,
@@ -170,7 +168,7 @@ export const i18nConstants = {
 			necessary: NecessaryInfoTitleEn,
 			selector: {
 				rank: RANK_EN,
-				department: DEPARTMENTS_EN,
+				// department: DEPARTMENTS_EN,
 				grade: GRADE_EN,
 				gender: GENDERS_EN,
 				isQuick: ["yes", "no"],
@@ -317,7 +315,8 @@ export const i18nConstants = {
 			necessary: NecessaryInfoTitle,
 			selector: {
 				rank: RANK,
-				department: DEPARTMENTS,
+				// yyf:似乎没用，移除
+				// department: DEPARTMENTS,
 				grade: GRADE,
 				gender: GENDERS,
 				isQuick: ["是", "否"],
