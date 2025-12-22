@@ -1,8 +1,10 @@
 <script lang="ts">
-  export let title:string;
+	export let title: string;
 </script>
 
-<div class="relative w-fit mb-[1rem]">
-  <p class="text-[24px] max-sm:text-sm text-text-2 font-bold">{title}</p>
-  <div class="bg-blue-300 w-full h-[5px] max-sm:h-[3px] rounded-full absolute bottom-[-0.5rem] left-0"></div>
+<div class="relative mb-[1rem] w-fit">
+	<p class="max-sm:text-sm text-text-2 font-bold text-[24px]">{title}</p>
+	<div
+		class="bg-blue-300 max-sm:h-[3px] left-0 absolute bottom-[-0.5rem] h-[5px] w-full rounded-full"
+	></div>
 </div>
