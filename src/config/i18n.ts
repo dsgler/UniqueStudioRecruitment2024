@@ -1,4 +1,4 @@
-import { DEPARTMENTS, DEPARTMENTS_EN, GENDERS, GENDERS_EN, GRADE, GRADE_EN, NecessaryInfoTitle, NecessaryInfoTitleEn, Period, PeriodEn, ProcessState, ProcessStateEN, RANK, RANK_EN, RecruitmentName, RecruitmentNameEn, Step, StepEn, TIMELINE, TIMELINE_EN } from "./const";
+import { GENDERS, GENDERS_EN, GRADE, GRADE_EN, NecessaryInfoTitle, NecessaryInfoTitleEn, Period, PeriodEn, ProcessState, ProcessStateEN, RANK, RANK_EN, RecruitmentName, RecruitmentNameEn, Step, StepEn, TIMELINE, TIMELINE_EN } from "./const";
 
 export const i18nConstants = {
   "en-US": {
@@ -132,7 +132,7 @@ export const i18nConstants = {
       necessary: NecessaryInfoTitleEn,
       selector: {
         rank: RANK_EN,
-        department: DEPARTMENTS_EN,
+        // department: DEPARTMENTS_EN,
         grade: GRADE_EN,
         gender: GENDERS_EN,
         isQuick: ["yes", "no"],
@@ -268,7 +268,8 @@ export const i18nConstants = {
       necessary: NecessaryInfoTitle,
       selector: {
         rank: RANK,
-        department: DEPARTMENTS,
+        // yyf:似乎没用，移除
+        // department: DEPARTMENTS,
         grade: GRADE,
         gender: GENDERS,
         isQuick: ["是", "否"],

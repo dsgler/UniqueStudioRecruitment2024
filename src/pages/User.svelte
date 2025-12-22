@@ -8,12 +8,8 @@
   import Button from '../components/public/Button.svelte';
   import word from '../assets/word.svg';
   import {
-    DEPARTMENTS,
-    DEPARTMENTS_EN,
     GENDERS,
-    GRADE,
     Group,
-    RANK,
   } from '../config/const';
   import type { College } from '../types';
   import { userInfo } from '../stores/userInfo';
