@@ -307,7 +307,7 @@
         class="h-10 w-10 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
       ></div>
       <p class="text-base font-medium text-gray-700">
-        {$t("header.loading")}
+        {$t('header.loading')}
       </p>
     </div>
   </div>

@@ -9,21 +9,28 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "lint-staged": "pnpm exec lint-staged",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "@eslint/compat": "^1.4.0",
+    "@eslint/js": "^9.39.1",
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@tsconfig/svelte": "^5.0.0",
+    "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.56.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-svelte": "^3.13.1",
+    "globals": "^16.5.0",
     "postcss": "^8.4.31",
     "svelte": "^4.0.5",
     "svelte-check": "^3.4.6",
     "tailwindcss": "^3.3.3",
     "tslib": "^2.6.0",
     "typescript": "^5.0.2",
+    "typescript-eslint": "^8.48.1",
     "vite": "^4.4.5"
   },
   "dependencies": {
@@ -39,6 +46,11 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --cache --fix"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
     ]
   }
 }
