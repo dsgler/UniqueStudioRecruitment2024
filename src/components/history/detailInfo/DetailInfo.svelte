@@ -17,7 +17,7 @@
 	import { uploadWrittenTest } from "../../../requests/application/uploadWrittenTest";
 	import { Message } from "../../../utils/Message";
 	import { onMount } from "svelte";
-	import { getWrittenTest } from "../../../requests/recruitment/getWrittenTest";
+	import { getWrittenTest, getWrittenTestUrl, getWrittenTestType } from "../../../requests/recruitment/getWrittenTest";
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { getInfo } from "../../../requests/user/getInfo";
 
@@ -30,9 +30,15 @@
 			push("/user");
 		}
 	};
+	enum WrittenTestType {
+		None = 0,
+		File = 1,
+		Url = 2
+	};
 	let file: File;
 	let fileInput: HTMLInputElement;
 	let writtenTestLink = "";
+	let writtenTestType = WrittenTestType.None;
 	let isGettingWrittenTestFile = true;
 	let isUploading = false;
 	const uploadAnswer = () => {
@@ -62,24 +68,54 @@
 				});
 		}
 	};
-	onMount(() => {
+	onMount(async () => {
 		if (step === $t("history.step.WrittenTest")) {
 			isGettingWrittenTestFile = true;
-			getWrittenTest(applicationInfo.recruitment_id, applicationInfo.group)
-				.then((res) => {
-					if (!res.ok) {
-						Message.warning($t("history.writeTest.downloadError"));
-						return;
-					}
-					return res.blob();
-				})
-				.then((blob) => {
-					const url = URL.createObjectURL(blob);
-					writtenTestLink = url;
-				})
-				.finally(() => {
-					isGettingWrittenTestFile = false;
-				});
+			const typeResp = await getWrittenTestType(applicationInfo.recruitment_id, applicationInfo.group);	
+			if (!typeResp.ok) {
+				Message.warning($t("history.writeTest.downloadError"));
+				isGettingWrittenTestFile = false;
+				return;
+			}
+			const typeData = await typeResp.json();
+			if (typeData.data === 2) { // 在线问卷链接 
+				getWrittenTestUrl(applicationInfo.recruitment_id, applicationInfo.group)
+					.then((res) => {
+						if (!res.ok) {
+							Message.warning($t("history.writeTest.downloadError"));
+							return;
+						}
+						return res.json();
+					})
+					.then((data) => {
+						console.log("test url: ", data);
+						writtenTestLink = data.data;
+						writtenTestType = WrittenTestType.Url;
+					})
+					.finally(() => {
+						isGettingWrittenTestFile = false;
+					});
+			} else if (await typeData.data === 1) { // 文件下载
+				getWrittenTest(applicationInfo.recruitment_id, applicationInfo.group)
+					.then((res) => {
+						if (!res.ok) {
+							Message.warning($t("history.writeTest.downloadError"));
+							return;
+						}
+						return res.blob();
+					})
+					.then((blob) => {
+						const url = URL.createObjectURL(blob);
+						writtenTestLink = url;
+						writtenTestType = WrittenTestType.File;
+					})
+					.finally(() => {
+						isGettingWrittenTestFile = false;
+					});
+			} else {
+				isGettingWrittenTestFile = false;
+				writtenTestType = WrittenTestType.None;
+			}
 		}
 	});
 </script>
@@ -137,27 +173,31 @@
 					download={$t("history.step.WrittenTest")}>{$t("history.writeTest.writtenTest")}</a
 				>{$t("history.writeTest.viewLink").split("{writtenTest}")[1] || ""}
 			</p>
-			{#if myWrittenTestAnswer}
-				<div class="border-blue-200 shadow-sm mb-5 mt-5 rounded-[10px] border bg-white p-3">
-					<p class="text-gray-500 mb-1 text-[1.1rem] font-bold">
-						{$t("history.writeTest.myAnswer")}
-					</p>
-					<p class="break-all font-medium">{myWrittenTestAnswer}</p>
-				</div>
+			{#if writtenTestType === WrittenTestType.Url}
+				<p class="mt-[0.5rem] text-gray-500">{$t("history.writeTest.urlTips")}</p>
+			{:else if writtenTestType === WrittenTestType.File}
+				{#if myWrittenTestAnswer}
+					<div class="border-blue-200 shadow-sm mb-5 mt-5 rounded-[10px] border bg-white p-3">
+						<p class="text-gray-500 mb-1 text-[1.1rem] font-bold">
+							{$t("history.writeTest.myAnswer")}
+						</p>
+						<p class="break-all font-medium">{myWrittenTestAnswer}</p>
+					</div>
+				{/if}
+				<Button
+					highlight
+					className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
+					isLoading={isUploading}
+					onClick={uploadAnswer}
+				>
+					{file
+						? $t("history.mobile.uploadWrittenTest") +
+							(file.name.length > 16
+								? file.name.slice(0, 8) + "..." + file.name.slice(-8)
+								: file.name)
+						: $t("history.mobile.selectWrittenTest")}
+				</Button>
 			{/if}
-			<Button
-				highlight
-				className="mx-auto rounded-full my-[8px] w-full text-[15px] leading-[36px]"
-				isLoading={isUploading}
-				onClick={uploadAnswer}
-			>
-				{file
-					? $t("history.mobile.uploadWrittenTest") +
-						(file.name.length > 16
-							? file.name.slice(0, 8) + "..." + file.name.slice(-8)
-							: file.name)
-					: $t("history.mobile.selectWrittenTest")}
-			</Button>
 		{/if}
 	{:else if step === $t("history.step.GroupTimeSelection")}
 		{#await getInterviewTimes(applicationInfo.recruitment_id, applicationInfo.group)}

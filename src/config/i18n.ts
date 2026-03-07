@@ -65,7 +65,8 @@ export const i18nConstants = {
 				downloadError: "get written questionnaire failed or no questionnaire yet",
 				uploadSuccess: "upload success",
 				uploadError: "upload failed",
-				myAnswer: "my answer"
+				myAnswer: "my answer",
+				urlTips: "Please answer the questions in the written test/questionnaire link"
 			},
 			timeSelector: {
 				chooseSuccess: "Selection succeed",
@@ -226,7 +227,8 @@ export const i18nConstants = {
 				downloadError: "获取笔试/问卷失败或暂无笔试/问卷",
 				uploadSuccess: "上传成功",
 				uploadError: "上传失败",
-				myAnswer: "我的答案"
+				myAnswer: "我的答案",
+				urlTips: "请点击进入问卷链接进行作答"
 			},
 			timeSelector: {
 				chooseSuccess: "修改成功",
