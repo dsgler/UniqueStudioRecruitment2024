@@ -42,6 +42,10 @@ export interface SingleTime {
 	start: string;
 	end: string;
 	uid: string;
+	name: string; // group
+	applications: object[];
+	select_number: number;
+	slot_number: number;
 }
 
 export type InterviewTime = {
@@ -52,6 +56,10 @@ export type InterviewTime = {
 			startTime: string;
 			endTime: string;
 			uuid: string;
+			name: string; // group
+			applications: object[];
+			select_number: number;
+			slot_number: number;
 		}[];
 	}[];
 };

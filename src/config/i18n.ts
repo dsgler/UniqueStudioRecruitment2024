@@ -69,9 +69,11 @@ export const i18nConstants = {
 				urlTips: "Please answer the questions in the written test/questionnaire link"
 			},
 			timeSelector: {
+				confirmSelection: "Are you sure you want to select this time?",
 				chooseSuccess: "Selection succeed",
 				chooseFailed: "Selection failed",
-				noTime: "There are currently no times to choose from"
+				noTime: "There are currently no times to choose from",
+				maxSelected: "You can only select up to {max} times"
 			},
 			groupInterviewTimeSelector: {
 				loading: "Retrieving available times..."
@@ -231,9 +233,11 @@ export const i18nConstants = {
 				urlTips: "请点击进入问卷链接进行作答"
 			},
 			timeSelector: {
+				confirmSelection: "你确定要选择这个时间吗？",
 				chooseSuccess: "修改成功",
 				chooseFailed: "修改失败",
-				noTime: "暂无可供选择的时间"
+				noTime: "暂无可供选择的时间",
+				maxSelected: "最多只能选择 {max} 个时间"
 			},
 			groupInterviewTimeSelector: {
 				loading: "获取可供选择的时间中..."

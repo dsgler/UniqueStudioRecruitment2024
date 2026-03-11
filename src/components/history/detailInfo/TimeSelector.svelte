@@ -9,19 +9,26 @@
 	import CheckBox from "../../../icons/CheckBox.svelte";
 	import { onMount } from "svelte";
 	import { Message } from "../../../utils/Message";
-	import { setInterviewTimes } from "../../../requests/application/setInterviewTimes";
+	import { setFallbackInterviewTimes } from "../../../requests/application/setInterviewTimes";
 	import { t } from "../../../utils/t";
 	import { derived } from "svelte/store";
 	import { localeLanguage } from "../../../stores/localeLanguage";
 	import { isMobile } from "../../../stores/isMobile";
-	import { selectedTimes as selectedTimeList } from "../../../stores/selectedTimes";
+	import { allocateInterviewTime } from "../../../requests/application/allocateApplications";
 
 	//ly: type 'SingleTime' is the return-type of backend, type 'InterviewTime' is the useful type when rendering UI
 	export let times: SingleTime[] = [];
 	export let type: "team" | "group";
 	export let aid: string;
+	// max number of selections allowed; set to 0 for unlimited
+	export let maxSelected = 0;
+	// slot content for each time item
+	export let slotIcon: string = "";
+	export let slotText: string = "";
+	export let enableSlot: boolean = false;
 	let timeTrees = parseInterviewTime(times);
 	let showSelector = false;
+	let container: HTMLElement;
 	let curDate: string | undefined = undefined;
 	let curPeriods: InterviewTime["detail"] | undefined = undefined;
 	let curTimes: InterviewTime["detail"][number]["time"] | undefined = undefined;
@@ -40,25 +47,55 @@
 	const handlePeriodClick = (detail: InterviewTime["detail"][number]) => {
 		curTimes = detail.time;
 	};
+	const isSingleMode = maxSelected === 1;
 	const selectTime = (uuid: string) => {
-		if (selectedTimes.includes(uuid)) {
-			selectedTimeList.setTimes([...selectedTimes.filter((el) => el !== uuid)]);
-			selectedTimes = [...selectedTimes.filter((el) => el !== uuid)];
-		} else {
-			selectedTimeList.setTimes([...selectedTimes, uuid]);
-			selectedTimes = [...selectedTimes, uuid];
+		const isSelected = selectedTimes.includes(uuid);
+		if (!isSelected && !isSingleMode && maxSelected > 0 && selectedTimes.length >= maxSelected) {
+			Message.warning(
+				$t("history.timeSelector.maxSelected", {
+					max: String(maxSelected)
+				})
+			);
+			return;
 		}
-		setInterviewTimes({
-			iids: selectedTimes,
-			aid,
-			type
-		})
-			.then(() => {
-				Message.success($t("history.timeSelector.chooseSuccess"));
+
+		if (isSingleMode) {
+			// 单选模式直接分配时间
+			if (isSelected) {
+				return;
+			}
+			if (!window.confirm($t("history.timeSelector.confirmSelection"))) return;
+
+			allocateInterviewTime({
+				aid,
+				type,
+				iid: uuid
 			})
-			.catch(() => {
-				Message.error($t("history.timeSelector.chooseFailed"));
-			});
+				.then(() => {
+					selectedTimes = [uuid];
+					Message.success($t("history.timeSelector.chooseSuccess"));
+				})
+				.catch(() => {
+					Message.error($t("history.timeSelector.chooseFailed"));
+				});
+		} else {
+			// 选择候选时间
+			const nowSelectedTimes = isSelected
+				? [...selectedTimes.filter((el) => el !== uuid)]
+				: [...selectedTimes, uuid];
+			setFallbackInterviewTimes({
+				iids: nowSelectedTimes,
+				aid,
+				type
+			})
+				.then(() => {
+					selectedTimes = nowSelectedTimes;
+					Message.success($t("history.timeSelector.chooseSuccess"));
+				})
+				.catch(() => {
+					Message.error($t("history.timeSelector.chooseFailed"));
+				});
+		}
 	};
 	const transferTime = derived(localeLanguage, () => (uuid: string) => {
 		const interviewTime = times.find((el) => el.uid === uuid);
@@ -78,11 +115,15 @@
 		showSelector = !showSelector;
 	};
 	onMount(() => {
-		function hide() {
+		function hide(event: Event) {
+			if (!showSelector) return;
+			if (container && container.contains(event.target as Node)) return;
 			showSelector = false;
 		}
+		document.addEventListener("pointerdown", hide);
 		document.addEventListener("click", hide);
 		return () => {
+			document.removeEventListener("pointerdown", hide);
 			document.removeEventListener("click", hide);
 		};
 	});
@@ -90,16 +131,23 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div on:click={(e) => e.stopPropagation()} class="relative w-full select-none">
+<div
+	bind:this={container}
+	on:click={(e) => e.stopPropagation()}
+	class="relative w-full select-none"
+>
 	<div
 		on:click={handleOpen}
 		class="scrollbar-hidden flex h-[36px] w-full cursor-pointer items-center whitespace-nowrap rounded-[10px] border-[1px] border-blue-400 bg-white pl-[16px] pr-[24px] leading-[36px]"
 	>
-		<div class="scrollbar-hidden flex flex-nowrap gap-[8px] overflow-x-auto overflow-y-hidden">
+		<div class="scrollbar-hidden flex gap-[8px] overflow-x-auto overflow-y-hidden">
 			{#each selectedTimes as time (time)}
 				{#if times.find((el) => el.uid === time)}
 					<div
-						class="h-[28px] flex-shrink-0 whitespace-nowrap rounded-[4px] bg-gray-150 px-[8px] leading-[28px]"
+						class={cx([
+							"h-[28px] flex-shrink-0 whitespace-nowrap rounded-[4px] px-[8px] leading-[28px]",
+							!isSingleMode && "bg-gray-150"
+						])}
 					>
 						<span>{$transferTime(time)?.date}</span>
 						<span>({$transferTime(time)?.startTime} - {$transferTime(time)?.endTime})</span>
@@ -117,7 +165,9 @@
 	{#if showSelector}
 		<div
 			transition:slide
-			class={cx(["absolute left-0 top-[40px] w-full rounded-[8px] p-[8px_16px] max-sm:text-sm"])}
+			class={cx([
+				"absolute left-0 top-[40px] z-50 w-full rounded-[8px] p-[8px_16px] max-sm:text-sm"
+			])}
 		>
 			<div class="sm:flex">
 				<div
@@ -178,12 +228,44 @@
 							<!-- svelte-ignore a11y-no-static-element-interactions -->
 							<div
 								on:click={() => selectTime(time.uuid)}
-								class="flex h-[46px] cursor-pointer items-center p-[12px_14px] hover:bg-gray-100 max-sm:min-w-[33%] max-sm:flex-shrink-0"
+								class={cx([
+									"flex cursor-pointer items-center p-[12px_14px] hover:bg-gray-100 max-sm:min-w-[33%] max-sm:flex-shrink-0",
+									enableSlot
+										? "min-h-[60px] flex-col items-start justify-center max-sm:min-h-[50px]"
+										: "h-[46px]",
+									isSingleMode && selectedTimes.includes(time.uuid) && "text-gray-250"
+								])}
 							>
-								<CheckBox isSelected={selectedTimes.includes(time.uuid)} />
-								<p class="ml-[8px] w-full overflow-x-auto whitespace-nowrap">
-									{`${$formatTime(time.startTime)} - ${$formatTime(time.endTime)}`}
-								</p>
+								<div class="flex w-full items-center">
+									{#if !isSingleMode}
+										<CheckBox isSelected={selectedTimes.includes(time.uuid)} />
+									{/if}
+									<p
+										class={cx([
+											"ml-[8px] w-full overflow-x-auto whitespace-nowrap",
+											isSingleMode && selectedTimes.includes(time.uuid) && "text-blue-300"
+										])}
+									>
+										{`${$formatTime(time.startTime)} - ${$formatTime(time.endTime)}`}
+									</p>
+								</div>
+								{#if enableSlot}
+									<div
+										class="text-gray-500 mt-[4px] flex w-full items-center justify-start gap-[4px] text-xs max-sm:mt-[2px] max-sm:text-[10px]"
+									>
+										{#if slotIcon}
+											<img
+												src={slotIcon}
+												alt="slot-icon"
+												class="h-[12px] w-[12px] max-sm:h-[10px] max-sm:w-[10px]"
+											/>
+										{/if}
+										{#if slotText}
+											<span class="truncate">{slotText}</span>
+										{/if}
+										<slot name="timeSlot" {time} />
+									</div>
+								{/if}
 							</div>
 						{/each}
 					</div>

@@ -2,6 +2,7 @@
 	import { push } from "svelte-spa-router";
 	import { Group } from "../../../config/const";
 	import Button from "../../public/Button.svelte";
+	import Popover from "../../public/Popover.svelte";
 	import type { UserStep } from "../../../types";
 	import TimeSelector from "./TimeSelector.svelte";
 	import InterviewInfo from "./InterviewInfo.svelte";
@@ -17,14 +18,23 @@
 	import { uploadWrittenTest } from "../../../requests/application/uploadWrittenTest";
 	import { Message } from "../../../utils/Message";
 	import { onMount } from "svelte";
-	import { getWrittenTest, getWrittenTestUrl, getWrittenTestType } from "../../../requests/recruitment/getWrittenTest";
+	import {
+		getWrittenTest,
+		getWrittenTestUrl,
+		getWrittenTestType
+	} from "../../../requests/recruitment/getWrittenTest";
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { getInfo } from "../../../requests/user/getInfo";
 
 	export let step: UserStep;
 	export let applicationInfo: Application;
 	$: myWrittenTestAnswer = applicationInfo?.answer?.split("/").at(-1);
-	let selectedTimes = applicationInfo?.interview_selections?.map((el) => el.uid);
+	let selectedTimes = applicationInfo?.interview_selections?.map((el) => el.uid); // 候选时间
+	let selectedAllocateTime = [
+		step === $t("history.step.TeamTimeSelection") || step === $t("history.step.TeamInterview")
+			? applicationInfo?.interview_allocations_team?.uid
+			: applicationInfo?.interview_allocations_group?.uid
+	];
 	const handleClick = (e) => {
 		if (e.target.className.includes("go-user")) {
 			push("/user");
@@ -34,7 +44,7 @@
 		None = 0,
 		File = 1,
 		Url = 2
-	};
+	}
 	let file: File;
 	let fileInput: HTMLInputElement;
 	let writtenTestLink = "";
@@ -71,14 +81,18 @@
 	onMount(async () => {
 		if (step === $t("history.step.WrittenTest")) {
 			isGettingWrittenTestFile = true;
-			const typeResp = await getWrittenTestType(applicationInfo.recruitment_id, applicationInfo.group);	
+			const typeResp = await getWrittenTestType(
+				applicationInfo.recruitment_id,
+				applicationInfo.group
+			);
 			if (!typeResp.ok) {
 				Message.warning($t("history.writeTest.downloadError"));
 				isGettingWrittenTestFile = false;
 				return;
 			}
 			const typeData = await typeResp.json();
-			if (typeData.data === 2) { // 在线问卷链接 
+			if (typeData.data === 2) {
+				// 在线问卷链接
 				getWrittenTestUrl(applicationInfo.recruitment_id, applicationInfo.group)
 					.then((res) => {
 						if (!res.ok) {
@@ -88,14 +102,14 @@
 						return res.json();
 					})
 					.then((data) => {
-						console.log("test url: ", data);
 						writtenTestLink = data.data;
 						writtenTestType = WrittenTestType.Url;
 					})
 					.finally(() => {
 						isGettingWrittenTestFile = false;
 					});
-			} else if (await typeData.data === 1) { // 文件下载
+			} else if ((await typeData.data) === 1) {
+				// 文件下载
 				getWrittenTest(applicationInfo.recruitment_id, applicationInfo.group)
 					.then((res) => {
 						if (!res.ok) {
@@ -118,6 +132,24 @@
 			}
 		}
 	});
+
+	let interviewTimesPromise;
+	if (
+		step === $t("history.step.GroupTimeSelection") ||
+		step === $t("history.step.TeamTimeSelection")
+	) {
+		interviewTimesPromise = getInterviewTimes(
+			applicationInfo.recruitment_id,
+			step === $t("history.step.TeamTimeSelection") ? "unique" : applicationInfo.group
+		);
+	}
+
+	function reloadInterviewTimes() {
+		interviewTimesPromise = getInterviewTimes(
+			applicationInfo.recruitment_id,
+			step === $t("history.step.TeamTimeSelection") ? "unique" : applicationInfo.group
+		);
+	}
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -174,7 +206,7 @@
 				>{$t("history.writeTest.viewLink").split("{writtenTest}")[1] || ""}
 			</p>
 			{#if writtenTestType === WrittenTestType.Url}
-				<p class="mt-[0.5rem] text-gray-500">{$t("history.writeTest.urlTips")}</p>
+				<p class="text-gray-500 mt-[0.5rem]">{$t("history.writeTest.urlTips")}</p>
 			{:else if writtenTestType === WrittenTestType.File}
 				{#if myWrittenTestAnswer}
 					<div class="border-blue-200 shadow-sm mb-5 mt-5 rounded-[10px] border bg-white p-3">
@@ -200,10 +232,46 @@
 			{/if}
 		{/if}
 	{:else if step === $t("history.step.GroupTimeSelection")}
-		{#await getInterviewTimes(applicationInfo.recruitment_id, applicationInfo.group)}
+		{#await interviewTimesPromise}
 			<p>{$t("history.groupInterviewTimeSelector.loading")}</p>
 		{:then res}
-			<TimeSelector type="group" aid={applicationInfo.uid} times={res.data} bind:selectedTimes />
+			<div class="space-y-2">
+				<!-- todo/: res.data.filter过期时间and已满时间 -->
+				<TimeSelector
+					type="group"
+					aid={applicationInfo.uid}
+					times={res.data}
+					maxSelected={1}
+					bind:selectedTimes={selectedAllocateTime}
+					on:reloadTimes={reloadInterviewTimes}
+					enableSlot={true}
+				>
+					<div slot="timeSlot" let:time class="flex items-center gap-1">
+						<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+						<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+					</div>
+				</TimeSelector>
+				<div class="text-gray-500 flex items-center gap-1 text-sm">
+					<Popover>
+						<span slot="children"
+							>选择候选时间<span
+								class="ml-1 inline h-5 w-5 cursor-pointer items-center justify-center text-blue-400"
+								>?</span
+							></span
+						>
+						<span slot="content"
+							>请勾选所有您方便参加面试的时段，作为您的备选时段。若原定排期需调整，面试官将优先从您的候选名单中进行匹配并及时通知您。</span
+						>
+					</Popover>
+				</div>
+				<TimeSelector
+					type="group"
+					aid={applicationInfo.uid}
+					times={res.data}
+					maxSelected={0}
+					bind:selectedTimes
+				/>
+			</div>
 		{/await}
 	{:else if step === $t("history.step.GroupInterview")}
 		<InterviewInfo
@@ -222,10 +290,38 @@
 				$formatTime($recruitment.stress_test_start)}
 		/>
 	{:else if step === $t("history.step.TeamTimeSelection")}
-		{#await getInterviewTimes(applicationInfo.recruitment_id)}
+		{#await interviewTimesPromise}
 			<p>{$t("history.teamInterviewTimeSelector.loading")}</p>
 		{:then res}
-			<TimeSelector type="team" aid={applicationInfo.uid} times={res.data} bind:selectedTimes />
+			<div class="space-y-2">
+				<TimeSelector
+					type="team"
+					aid={applicationInfo.uid}
+					times={res.data}
+					maxSelected={1}
+					bind:selectedTimes={selectedAllocateTime}
+					on:reloadTimes={reloadInterviewTimes}
+					enableSlot={true}
+				>
+					<div slot="timeSlot" let:time class="flex items-center gap-1">
+						<span class="bg-green-400 h-2 w-2 rounded-full"></span>
+						<span class="text-xs">剩余 {time.slot_number - time.select_number} 个位置</span>
+					</div>
+				</TimeSelector>
+				<div class="text-gray-500 flex items-center gap-1 text-sm">
+					<Popover>
+						<span slot="children">选择候选时间</span>
+						<span slot="content"> 请选择所有可以参与面试的时间，以供面试官调整 </span>
+					</Popover>
+				</div>
+				<TimeSelector
+					type="team"
+					aid={applicationInfo.uid}
+					times={res.data}
+					maxSelected={0}
+					bind:selectedTimes
+				/>
+			</div>
 		{/await}
 	{:else if step === $t("history.step.TeamInterview")}
 		<InterviewInfo

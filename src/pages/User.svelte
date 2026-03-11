@@ -204,7 +204,6 @@
 				$userInfo.applications.forEach(async (app) => {
 					// lyx: 可能有多个申请
 					if (app.recruitment_id !== $recruitment.uid) return;
-					console.log("send application of group", app.group);
 					await updateApplication(app.uid, formData);
 				});
 				const res = await getInfo();
