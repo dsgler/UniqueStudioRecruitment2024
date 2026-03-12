@@ -48,7 +48,6 @@
 		groups = [],
 		grade = "",
 		intro = "",
-		uid = "",
 		is_quick = false,
 		is_project_c = false
 	} = $latestDraft || {};
@@ -76,11 +75,18 @@
 	) as [string | null, string | null];
 
 	$: groupGroupTitles = $t("user.selector.groupGroup") as unknown as [string, string];
+	$: hasAppliedCurrentRecruitment =
+		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid;
+	$: canShowSaveTips = hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected;
+	$: isRecruitmentOpen =
+		!!$recruitment &&
+		new Date().getTime() >= new Date($recruitment.beginning).getTime() &&
+		new Date().getTime() <= new Date($recruitment.deadline).getTime();
 
 	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
 
 	const downloadResume = () => {
-		getResume(uid, downloadResumeName);
+		getResume($userInfo.applications[0].uid, downloadResumeName);
 	};
 	const closeEditMode = () => {
 		({
@@ -92,7 +98,6 @@
 			groups = [],
 			grade = "",
 			intro = "",
-			uid = "",
 			is_quick = false,
 			is_project_c = false
 		} = $latestDraft || {});
@@ -115,7 +120,10 @@
 			resume
 		});
 		globalLoading.set(false);
-		if (ok) showSignUpModal = false;
+		if (ok) {
+			showSignUpModal = false;
+			resume = undefined;
+		}
 	};
 	const saveApplicationInfo = async () => {
 		if (isUploading) return;
@@ -175,10 +183,7 @@
 								highlight>{$t("user.save")}</Button
 							>
 							<p slot="content" class="w-[180px]">
-								{$userInfo.applications[0]?.recruitment_id === $recruitment.uid &&
-								!$userInfo.applications[0]?.rejected
-									? $t("user.saveTips")
-									: $t("user.saveTips1")}
+								{canShowSaveTips ? $t("user.saveTips") : $t("user.saveTips1")}
 							</p>
 						</Popover>
 					</div>
@@ -198,7 +203,7 @@
 				{/if}
 			</div>
 			<div class="mb-[1rem] flex w-full -translate-y-2 flex-row-reverse">
-				{#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+				{#if !hasAppliedCurrentRecruitment && isRecruitmentOpen}
 					<Popover style="white" direct="top" questionDirection="end">
 						<Button
 							onClick={() => (showSignUpModal = true)}
@@ -297,8 +302,7 @@
 						<MultiSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
 							slot="children"
-							editMode={$editMode &&
-								(!$recruitment || $userInfo?.applications[0]?.recruitment_id !== $recruitment.uid)}
+							editMode={$editMode && !hasAppliedCurrentRecruitment}
 							necessary
 							name={$t("user.group")}
 							selectedItems={groupGroupSelected}
@@ -366,7 +370,7 @@
 					</p>
 					{#if resume}
 						<p class="max-sm:hidden">{resume.name}</p>
-					{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0].resume}
+					{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0].resume}
 						<div
 							on:click={downloadResume}
 							class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
@@ -379,12 +383,12 @@
 							{/await}
 						</div>
 					{/if}
-					<div
+					<button
 						class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
 						on:click={() => fileInput.click()}
 					>
 						{resume ? $t("user.reselect") : $t("user.select")}
-					</div>
+					</button>
 					<input
 						on:change={() => {
 							const file = fileInput.files[0];
@@ -399,7 +403,7 @@
 						type="file"
 						class="hidden"
 					/>
-				{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0]?.resume}
+				{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0]?.resume}
 					<div
 						on:click={downloadResume}
 						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"

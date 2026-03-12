@@ -40,6 +40,7 @@ export type ApplicationMutipleGroups = Omit<
 	| "interview_allocations_team"
 	| "interview_selections"
 	| "comments"
+	| "uid"
 > & {
 	groups: string[];
 };
