@@ -10,7 +10,6 @@
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
 	import type { UserStep } from "../types";
-	import { selectedTimes } from "../stores/selectedTimes";
 	$: signUpStep = $t(`history.step.SignUp`) as UserStep;
 	$: processing = $t("history.processState.PROCESSING") as ProcessStateType;
 	const getState = (application: Application, date: string) =>
@@ -71,14 +70,6 @@
 	$: {
 		if (rawApplications) {
 			updateApplications(rawApplications);
-		}
-	}
-
-	$: {
-		if ($userInfo) {
-			selectedTimes.setTimes(
-				$userInfo.applications[0]?.interview_selections?.map((el) => el.uid) || []
-			);
 		}
 	}
 </script>

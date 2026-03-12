@@ -1,4 +1,6 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-at-html-tags */
+
 	import { fade, fly } from "svelte/transition";
 	import UserInfoTitle from "../components/user/UserInfoTitle.svelte";
 	import SingleInputInfo from "../components/user/SingleInputInfo.svelte";
@@ -204,7 +206,6 @@
 				$userInfo.applications.forEach(async (app) => {
 					// lyx: 可能有多个申请
 					if (app.recruitment_id !== $recruitment.uid) return;
-					console.log("send application of group", app.group);
 					await updateApplication(app.uid, formData);
 				});
 				const res = await getInfo();

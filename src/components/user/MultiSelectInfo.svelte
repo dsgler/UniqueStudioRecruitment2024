@@ -34,7 +34,6 @@
 			newSelectedItems[columnIndex] = item;
 		}
 
-		// console.log('old selectedItems', selectedItems);
 		selectedItems = newSelectedItems;
 		onChange(selectedItems);
 	};

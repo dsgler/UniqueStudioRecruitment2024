@@ -5,20 +5,16 @@
 	export let time: string;
 	export let group: string;
 
-	$: tipText = $t("history.stressTest.tips", {
-		time: "{TIME}",
-		room: "{ROOM}",
-		group
-	});
+	$: tipText = $t("history.stressTest.tips");
 
-	$: parts = tipText.split(/(\{TIME\}|\{ROOM\})/);
+	$: parts = tipText.split(/(\{time\}|\{room\})/);
 </script>
 
 <p class="max-sm:text-center max-sm:text-sm">
 	{#each parts as part, i (i)}
-		{#if part === "{TIME}"}
+		{#if part === "{time}"}
 			<span class="text-blue-300">{time}</span>
-		{:else if part === "{ROOM}"}
+		{:else if part === "{room}"}
 			<span class="text-blue-300">{InterviewPlace[group]}</span>
 		{:else}
 			{part}

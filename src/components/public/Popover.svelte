@@ -64,7 +64,7 @@
 		>
 			<div
 				class={cx([
-					"w-fit  rounded-[6px] border-gray-150 p-[8px_12px] text-center text-sm",
+					"w-fit min-w-[180px] max-w-[320px] whitespace-normal rounded-[6px] border-gray-150 p-[8px_12px] text-center text-sm",
 					style === "black" ? "bg-black text-white" : "bg-white text-black"
 				])}
 			>
