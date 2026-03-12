@@ -1,4 +1,7 @@
 <script lang="ts">
+	// 目前找不到更好的方法解决
+	/* eslint-disable svelte/no-at-html-tags */
+
 	import { Group, InterviewPlace } from "../../../config/const";
 	import type { InterviewType } from "../../../types";
 	import { t } from "../../../utils/t";
@@ -11,46 +14,18 @@
 {#if time}
 	<p class="max-sm:text-cente max-sm:text-smr">
 		{#if type === "group"}
-			{$t("history.groupInterview.tips", {
+			{@html $t("history.groupInterview.tips", {
 				group: Group[group],
-				time: "",
-				room: ""
-			}).split("{time}")[0]}<span class="text-blue-300">{time}</span>{$t(
-				"history.groupInterview.tips",
-				{
-					group: Group[group],
-					time: "",
-					room: ""
-				}
-			)
-				.split("{time}")[1]
-				.split("{room}")[0]}<span class="text-blue-300">{InterviewPlace[group]}</span>{$t(
-				"history.groupInterview.tips",
-				{
-					group: Group[group],
-					time: "",
-					room: ""
-				}
-			).split("{room}")[1]}
+				time: `<span class="text-blue-300">${time}</span>`,
+				room: `<span class="text-blue-300"
+      >${InterviewPlace[group]}</span>`
+			})}
 		{:else}
-			{$t("history.teamInterview.tips", {
-				time: "",
-				room: ""
-			}).split("{time}")[0]}<span class="text-blue-300">{time}</span>{$t(
-				"history.teamInterview.tips",
-				{
-					time: "",
-					room: ""
-				}
-			)
-				.split("{time}")[1]
-				.split("{room}")[0]}<span class="text-blue-300">{InterviewPlace[group]}</span>{$t(
-				"history.teamInterview.tips",
-				{
-					time: "",
-					room: ""
-				}
-			).split("{room}")[1]}
+			{@html $t("history.teamInterview.tips", {
+				time: `<span class="text-blue-300">${time}</span>`,
+				room: `<span class="text-blue-300"
+      >${InterviewPlace[group]}</span>`
+			})}
 		{/if}
 	</p>
 {:else}
