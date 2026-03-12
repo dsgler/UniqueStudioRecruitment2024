@@ -13,25 +13,24 @@
 	import { GENDERS, Group, GroupGroup } from "../config/const";
 	import type { College } from "../types";
 	import { userInfo } from "../stores/userInfo";
-	import { getRecruitmentById } from "../requests/recruitment/getById";
 	import { getResume } from "../requests/user/getResume";
 	import { recruitment } from "../stores/recruitment";
 	import Popover from "../components/public/Popover.svelte";
-	import { Message } from "../utils/Message";
-	import { latestInfo } from "../stores/latestApplication";
+	import { latestDraft } from "../stores/latestDraft";
 	import Modal from "../components/public/Modal.svelte";
-	import { checkNecessaryInfo } from "../utils/checkNecessaryInfo";
-	import { signUpRecruitment } from "../requests/application/signUpRecruitment";
-	import { updateApplication } from "../requests/application/updateApplication";
+	import { Message } from "../utils/Message";
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
-	import { getInfo } from "../requests/user/getInfo";
 	import { localeLanguage } from "../stores/localeLanguage";
 	import uploadSvg from "../assets/upload.svg";
 	import { departments } from "../stores/departments";
 	import MultiSelectInfo from "../components/user/MultiSelectInfo.svelte";
 	import { globalLoading } from "../stores/globalLoading";
 	import { editMode } from "../stores/editMode";
+	import {
+		signUp as doSignUp,
+		saveApplicationInfo as doSaveApplicationInfo
+	} from "../actions/applicationActions";
 
 	$: colleges = Object.keys($departments).sort();
 	let isUploading = false;
@@ -48,10 +47,9 @@
 		groups = [],
 		grade = "",
 		intro = "",
-		uid = "",
 		is_quick = false,
 		is_project_c = false
-	} = $latestInfo || {};
+	} = $latestDraft || {};
 	//ly:this asset would be wrong but I just don't want to see TypeError :)
 	$: majors = $departments[institute as College] || [];
 	$: ranks = $t("user.selector.rank") as unknown as string[];
@@ -59,17 +57,9 @@
 	$: grades = $t("user.selector.grade") as unknown as string[];
 	let isQuick = is_quick ? $t("user.quick") : $t("user.notQuick");
 	let isProjectC = is_project_c ? $t("user.selector.projectC")[0] : $t("user.selector.projectC")[1];
-	$: if ($userInfo?.qq_account || $latestInfo?.qq_account) {
-		qq_account = $userInfo?.qq_account || $latestInfo?.qq_account || "";
+	$: if ($userInfo?.qq_account || $latestDraft?.qq_account) {
+		qq_account = $userInfo?.qq_account || $latestDraft?.qq_account || "";
 	}
-	let qqError = "";
-	const validateQQ = () => {
-		if (qq_account && !/^[1-9][0-9]{4,10}$/.test(qq_account)) {
-			qqError = $t("user.checkQQ");
-		} else {
-			qqError = "";
-		}
-	};
 
 	localeLanguage.subscribe(() => {
 		Promise.resolve().then(() => {
@@ -84,9 +74,18 @@
 	) as [string | null, string | null];
 
 	$: groupGroupTitles = $t("user.selector.groupGroup") as unknown as [string, string];
+	$: hasAppliedCurrentRecruitment =
+		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid;
+	$: canShowSaveTips = hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected;
+	$: isRecruitmentOpen =
+		!!$recruitment &&
+		new Date().getTime() >= new Date($recruitment.beginning).getTime() &&
+		new Date().getTime() <= new Date($recruitment.deadline).getTime();
+
+	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
 
 	const downloadResume = () => {
-		getResume(uid, $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历");
+		getResume($userInfo.applications[0].uid, downloadResumeName);
 	};
 	const closeEditMode = () => {
 		({
@@ -98,150 +97,54 @@
 			groups = [],
 			grade = "",
 			intro = "",
-			uid = "",
 			is_quick = false,
 			is_project_c = false
-		} = $latestInfo || {});
+		} = $latestDraft || {});
 		resume = undefined;
 		editMode.out();
 	};
-	const signUp = () => {
-		if (
-			!$checkNecessaryInfo({
-				rank,
-				major,
-				institute,
-				groups,
-				grade,
-				intro,
-				qq_account,
-				is_quick: isQuick === $t("user.quick") ? true : false,
-				is_project_c: isProjectC === $t("user.selector.projectC")[0] ? true : false
-			})
-		)
-			return;
+	const signUp = async () => {
 		globalLoading.set(true);
-		try {
-			groups.forEach((group) => {
-				const formData = new FormData();
-				formData.append("recruitment_id", $recruitment.uid);
-				if (resume) formData.append("resume", resume);
-				for (const [key, value] of Object.entries({
-					rank,
-					major,
-					qq_account,
-					institute,
-					group,
-					grade,
-					intro,
-					referrer,
-					is_quick: isQuick === $t("user.quick") ? "true" : "false"
-				})) {
-					formData.append(key, value);
-				}
-				signUpRecruitment(formData)
-					.then(() => {
-						Message.success($t("user.signUpSuccess"));
-						showSignUpModal = false;
-						editMode.out();
-						return getInfo();
-					})
-					.then((res) => {
-						userInfo.setInfo(res.data);
-						latestInfo.setApplication(res.data);
-					});
-			});
-		} catch {
-			Message.error($t("user.signUpFail"));
-		} finally {
-			globalLoading.set(false);
+		const ok = await doSignUp({
+			rank,
+			referrer,
+			major,
+			qq_account,
+			institute,
+			groups,
+			grade,
+			intro,
+			isQuick,
+			isProjectC,
+			resume
+		});
+		globalLoading.set(false);
+		if (ok) {
+			showSignUpModal = false;
+			resume = undefined;
 		}
 	};
 	const saveApplicationInfo = async () => {
 		if (isUploading) return;
 		isUploading = true;
-		if (resume) {
-			globalLoading.set(true);
-		}
-		if (
-			!$checkNecessaryInfo({
-				rank,
-				major,
-				institute,
-				qq_account,
-				groups,
-				grade,
-				intro,
-				is_quick: isQuick === $t("user.quick") ? true : false
-			})
-		) {
-			isUploading = false;
-			globalLoading.set(false);
-			return;
-		}
-
-		if (
-			$recruitment &&
-			$recruitment.uid === $userInfo.applications[0]?.recruitment_id &&
-			!$userInfo.applications[0]?.rejected &&
-			!$userInfo.applications[0]?.abandoned
-		) {
-			// 如果还在流程中，修改后端 application
-			const formData = new FormData();
-			formData.append("recruitment_id", $recruitment.uid);
-			if (resume) formData.append("resume", resume);
-			for (const [key, value] of Object.entries({
-				rank,
-				major,
-				institute,
-				qq_account,
-				grade,
-				intro,
-				referrer,
-				is_quick: isQuick === $t("user.quick") ? "true" : "false"
-			})) {
-				formData.append(key, value);
-			}
-			try {
-				$userInfo.applications.forEach(async (app) => {
-					// lyx: 可能有多个申请
-					if (app.recruitment_id !== $recruitment.uid) return;
-					await updateApplication(app.uid, formData);
-				});
-				const res = await getInfo();
-				userInfo.setInfo(res.data);
-				latestInfo.updateInfo({
-					rank,
-					referrer,
-					major,
-					qq_account,
-					institute,
-					groups,
-					grade,
-					intro,
-					is_quick: isQuick === $t("user.quick") ? true : false
-				});
-				Message.success($t("user.saveSuccess"));
-			} catch {
-				Message.error($t("user.saveFailed"));
-			}
-		} else {
-			latestInfo.updateInfo({
-				rank,
-				referrer,
-				major,
-				qq_account,
-				institute,
-				groups,
-				grade,
-				intro,
-				is_quick: isQuick === $t("user.quick") ? true : false
-			});
-			Message.success($t("user.saveSuccess"));
-		}
+		if (resume) globalLoading.set(true);
+		const ok = await doSaveApplicationInfo({
+			rank,
+			referrer,
+			major,
+			qq_account,
+			institute,
+			groups,
+			grade,
+			intro,
+			isQuick,
+			isProjectC,
+			resume
+		});
 		isUploading = false;
 		globalLoading.set(false);
-		editMode.out();
+		// doSaveApplicationInfo 不成功时 editMode 不退出，保持表单可继续编辑
+		if (!ok) return;
 	};
 </script>
 
@@ -279,10 +182,7 @@
 								highlight>{$t("user.save")}</Button
 							>
 							<p slot="content" class="w-[180px]">
-								{$userInfo.applications[0]?.recruitment_id === $recruitment.uid &&
-								!$userInfo.applications[0]?.rejected
-									? $t("user.saveTips")
-									: $t("user.saveTips1")}
+								{canShowSaveTips ? $t("user.saveTips") : $t("user.saveTips1")}
 							</p>
 						</Popover>
 					</div>
@@ -302,7 +202,7 @@
 				{/if}
 			</div>
 			<div class="mb-[1rem] flex w-full -translate-y-2 flex-row-reverse">
-				{#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+				{#if !hasAppliedCurrentRecruitment && isRecruitmentOpen}
 					<Popover style="white" direct="top" questionDirection="end">
 						<Button
 							onClick={() => (showSignUpModal = true)}
@@ -373,8 +273,6 @@
 				<SingleInputInfo
 					editMode={$editMode}
 					necessary
-					on:blur={validateQQ}
-					errorMessage={qqError}
 					name={$t("user.qq")}
 					bind:content={qq_account}
 					isDisabled={true}
@@ -403,8 +301,7 @@
 						<MultiSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
 							slot="children"
-							editMode={$editMode &&
-								(!$recruitment || $userInfo?.applications[0]?.recruitment_id !== $recruitment.uid)}
+							editMode={$editMode && !hasAppliedCurrentRecruitment}
 							necessary
 							name={$t("user.group")}
 							selectedItems={groupGroupSelected}
@@ -472,25 +369,24 @@
 					</p>
 					{#if resume}
 						<p class="max-sm:hidden">{resume.name}</p>
-					{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0].resume}
+					{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0].resume}
 						<div
 							on:click={downloadResume}
-							class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
+							class="flex cursor-pointer items-center justify-center gap-[8px] text-center sm:flex-col"
 						>
 							<img src={word} alt="简历" />
-							{#await getRecruitmentById($userInfo.applications[0].recruitment_id) then res}
-								<p class="max-sm:text-sm">
-									{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}
-								</p>
-							{/await}
+							<p class="max-sm:text-sm">
+								{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
+								<span class="text-gray-300"> {downloadResumeName}</span>
+							</p>
 						</div>
 					{/if}
-					<div
+					<button
 						class="cursor-pointer rounded-[0.5rem] border-[1px] border-[#0A84FF] p-[0.5rem_2rem] text-[#0A84FF] transition-all hover:bg-[#0A84FF] hover:text-white max-sm:hidden"
 						on:click={() => fileInput.click()}
 					>
 						{resume ? $t("user.reselect") : $t("user.select")}
-					</div>
+					</button>
 					<input
 						on:change={() => {
 							const file = fileInput.files[0];
@@ -505,17 +401,16 @@
 						type="file"
 						class="hidden"
 					/>
-				{:else if $recruitment && $userInfo.applications[0]?.recruitment_id === $recruitment.uid && $userInfo.applications[0]?.resume}
+				{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0]?.resume}
 					<div
 						on:click={downloadResume}
 						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
 					>
 						<img src={word} alt="简历" />
-						{#await getRecruitmentById($userInfo.applications[0]?.recruitment_id) then res}
-							<p class="max-sm:text-sm">
-								{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}
-							</p>
-						{/await}
+						<p class="text-center max-sm:text-sm">
+							{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
+							<span class="text-gray-300"> {downloadResumeName}</span>
+						</p>
 					</div>
 				{:else}
 					<p class="text-gray-400 select-none text-lg font-bold max-sm:text-sm">

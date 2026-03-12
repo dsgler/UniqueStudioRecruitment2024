@@ -5,7 +5,7 @@
 	export let time: string;
 	export let group: string;
 
-	$: tipText = $t("history.stressTest.tips");
+	$: tipText = $t("history.stressTest.tips", { group });
 
 	$: parts = tipText.split(/(\{time\}|\{room\})/);
 </script>
