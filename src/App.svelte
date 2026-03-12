@@ -82,7 +82,14 @@
 		getInfo()
 			.then((res) => {
 				userInfo.setInfo(res.data);
-				if (!$latestInfo && res.data.applications[0]) {
+				// 删除 $latestInfo 可能对本地有影响，但没有问题
+				// 旨在解决更换账号数据不更新的问题
+				if (
+					$recruitment &&
+					$recruitment.uid === $userInfo.applications[0]?.recruitment_id &&
+					res.data.applications[0]
+				) {
+					// if (!$latestInfo && res.data.applications[0]) {
 					latestInfo.setApplication(res.data);
 				} else if (!$latestInfo?.qq_account && res.data.qq_account) {
 					// ly: if qq_account is added to backend but not in localStorage, valid it

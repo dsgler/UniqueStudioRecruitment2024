@@ -62,12 +62,6 @@
 	$: if ($userInfo?.qq_account || $latestInfo?.qq_account) {
 		qq_account = $userInfo?.qq_account || $latestInfo?.qq_account || "";
 	}
-	$: {
-		console.log($departments);
-		console.log(colleges);
-		// console.log($majors);
-		// console.log(institute);
-	}
 
 	localeLanguage.subscribe(() => {
 		Promise.resolve().then(() => {
