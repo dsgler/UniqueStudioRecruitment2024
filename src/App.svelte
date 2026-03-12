@@ -187,7 +187,7 @@
 	>
 		<Groups />
 	</div>
-	<div class="h-[80px] w-full sm:hidden"></div>
+	<!-- <div class="h-[80px] w-full sm:hidden"></div> -->
 	<Router {routes} />
 </div>
 

@@ -13,7 +13,6 @@
 	import { GENDERS, Group, GroupGroup } from "../config/const";
 	import type { College } from "../types";
 	import { userInfo } from "../stores/userInfo";
-	import { getRecruitmentById } from "../requests/recruitment/getById";
 	import { getResume } from "../requests/user/getResume";
 	import { recruitment } from "../stores/recruitment";
 	import Popover from "../components/public/Popover.svelte";
@@ -373,14 +372,13 @@
 					{:else if hasAppliedCurrentRecruitment && $userInfo.applications[0].resume}
 						<div
 							on:click={downloadResume}
-							class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
+							class="flex cursor-pointer items-center justify-center gap-[8px] text-center sm:flex-col"
 						>
 							<img src={word} alt="简历" />
-							{#await getRecruitmentById($userInfo.applications[0].recruitment_id) then res}
-								<p class="max-sm:text-sm">
-									{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}
-								</p>
-							{/await}
+							<p class="max-sm:text-sm">
+								{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
+								<span class="text-gray-300"> {downloadResumeName}</span>
+							</p>
 						</div>
 					{/if}
 					<button
@@ -409,12 +407,10 @@
 						class="flex cursor-pointer items-center justify-center gap-[8px] sm:flex-col"
 					>
 						<img src={word} alt="简历" />
-						{#await getRecruitmentById($userInfo.applications[0]?.recruitment_id) then res}
-							<p class="text-center max-sm:text-sm">
-								{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}<br />
-								<span class="text-gray-300"> {downloadResumeName}</span>
-							</p>
-						{/await}
+						<p class="text-center max-sm:text-sm">
+							{$parseTitle($recruitment.name)}-{$userInfo.name}-{$t("user.resume")}<br />
+							<span class="text-gray-300"> {downloadResumeName}</span>
+						</p>
 					</div>
 				{:else}
 					<p class="text-gray-400 select-none text-lg font-bold max-sm:text-sm">
