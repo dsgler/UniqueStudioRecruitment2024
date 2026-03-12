@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { slide } from "svelte/transition";
 	import arrow from "/src/assets/arrow.svg";
+	import search from "/src/assets/search.svg";
 	import cx from "clsx";
 	import { onMount } from "svelte";
 	import BottomBar from "../public/BottomBar.svelte";
@@ -18,17 +19,28 @@
 
 	let inputWrapper: HTMLDivElement;
 	let showItems = false;
-	let filteredItems: string[] = [];
+	let searchContent = content ?? "";
 
-	$: {
-		if (content) {
-			filteredItems = selectItems.filter((item) =>
-				item.toLowerCase().includes(content.toLowerCase())
-			);
-		} else {
-			filteredItems = [...selectItems];
-		}
+	$: normalizedSearch = searchContent.trim().toLowerCase();
+	$: filteredItems = normalizedSearch
+		? selectItems.filter((item) => item.toLowerCase().includes(normalizedSearch))
+		: [...selectItems];
+
+	$: if (!showItems) {
+		searchContent = content ?? "";
 	}
+
+	const openItems = () => {
+		if (!editMode) return;
+		showItems = true;
+		searchContent = "";
+	};
+
+	const closeItems = (withValidation: boolean) => {
+		if (!showItems) return;
+		showItems = false;
+		if (withValidation) validateContent();
+	};
 
 	const validateContent = () => {
 		if (content && !selectItems.includes(content)) {
@@ -40,11 +52,7 @@
 	onMount(() => {
 		const close = (e: MouseEvent) => {
 			if (inputWrapper && !inputWrapper.contains(e.target as Node)) {
-				// Only validate and close if we are currently showing items
-				if (showItems) {
-					showItems = false;
-					validateContent();
-				}
+				closeItems(true);
 			}
 		};
 		document.addEventListener("click", close);
@@ -76,25 +84,23 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			bind:this={inputWrapper}
-			on:click={() => {
-				if (!editMode) return;
-				showItems = true;
-			}}
+			on:click={openItems}
 			class={cx([
 				"relative flex h-[48px] w-full items-center rounded-[8px] border-[1px] bg-gray-50 p-[4px_12px] text-text-1 outline-none transition-all focus:border-[#165DFF] max-sm:h-[42px] max-sm:text-sm",
 				editMode ? "cursor-text border-[1px] border-gray-200 bg-transparent" : "border-transparent"
 			])}
 		>
+			<img
+				src={search}
+				alt="search"
+				class={cx("mr-[8px] h-[16px] w-[16px] flex-shrink-0", !showItems && "hidden")}
+			/>
 			<input
 				disabled={!editMode}
-				bind:value={content}
+				bind:value={searchContent}
 				{placeholder}
-				on:focus={() => {
-					if (editMode) showItems = true;
-				}}
-				on:input={() => {
-					if (editMode) showItems = true;
-				}}
+				on:focus={openItems}
+				on:input={() => editMode && (showItems = true)}
 				class={cx("w-full bg-transparent outline-none", !editMode && "pointer-events-none")}
 			/>
 			<img
@@ -132,10 +138,7 @@
 </div>
 
 <BottomBar
-	on:close={() => {
-		showItems = false;
-		validateContent();
-	}}
+	on:close={() => closeItems(true)}
 	show={$isMobile && showItems}
 	className="h-[200px] overflow-y-auto "
 >

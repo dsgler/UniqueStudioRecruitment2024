@@ -5,13 +5,19 @@
 	import type { Application } from "../types/application";
 	import type { ProcessState as ProcessStateType } from "../types";
 	import { userInfo } from "../stores/userInfo";
-	import { getRecruitmentById } from "../requests/recruitment/getById";
 	import { recruitment } from "../stores/recruitment";
 	import { parseTitle } from "../utils/parseTitle";
 	import { t } from "../utils/t";
 	import type { UserStep } from "../types";
+	import {
+		extendedApplications,
+		extendedApplicationsLoading,
+		loadExtendedApplications
+	} from "../stores/extendedApplications";
+
 	$: signUpStep = $t(`history.step.SignUp`) as UserStep;
 	$: processing = $t("history.processState.PROCESSING") as ProcessStateType;
+
 	const getState = (application: Application, date: string) =>
 		$t(
 			`history.processState.${
@@ -29,49 +35,12 @@
 
 	const getStep = (application: Application) => $t(`history.step.${application.step}`) as UserStep;
 
-	$: rawApplications = $userInfo?.applications;
-
-	interface extendApplication extends Application {
-		title: string;
-		end: string;
-		deadline: string;
-		beginning: string;
+	$: if ($userInfo?.applications) {
+		loadExtendedApplications($userInfo.applications);
 	}
 
-	let applications: extendApplication[] = [];
-	let isLoading = false;
-
-	const updateApplications = (_rawApplications: Application[]) => {
-		Promise.all(
-			_rawApplications.map(async (application) => {
-				isLoading = true;
-				const res = await getRecruitmentById(application.recruitment_id);
-				const processedApplication = {
-					...application,
-					title: $parseTitle(res.data.name),
-					end: res.data.end,
-					deadline: res.data.deadline,
-					beginning: res.data.beginning
-				};
-				return processedApplication;
-			})
-		)
-			.then((res) => {
-				// 防止竞态问题
-				if (_rawApplications === rawApplications) {
-					applications = res;
-				}
-			})
-			.finally(() => {
-				isLoading = false;
-			});
-	};
-
-	$: {
-		if (rawApplications) {
-			updateApplications(rawApplications);
-		}
-	}
+	$: applications = $extendedApplications;
+	$: isLoading = $extendedApplicationsLoading;
 </script>
 
 <div
