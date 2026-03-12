@@ -62,14 +62,6 @@
 	$: if ($userInfo?.qq_account || $latestInfo?.qq_account) {
 		qq_account = $userInfo?.qq_account || $latestInfo?.qq_account || "";
 	}
-	let qqError = "";
-	const validateQQ = () => {
-		if (qq_account && !/^[1-9][0-9]{4,10}$/.test(qq_account)) {
-			qqError = $t("user.checkQQ");
-		} else {
-			qqError = "";
-		}
-	};
 
 	localeLanguage.subscribe(() => {
 		Promise.resolve().then(() => {
@@ -373,8 +365,6 @@
 				<SingleInputInfo
 					editMode={$editMode}
 					necessary
-					on:blur={validateQQ}
-					errorMessage={qqError}
 					name={$t("user.qq")}
 					bind:content={qq_account}
 					isDisabled={true}

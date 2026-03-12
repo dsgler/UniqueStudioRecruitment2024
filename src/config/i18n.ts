@@ -170,7 +170,7 @@ export const i18nConstants = {
 			resumePopover:
 				"You can upload resumes, portfolios, etc. If you want to upload multiple files, please compress them into .zip . Maximum size is 20MB",
 			checkInfo: "{key} is needed!",
-			checkQQ: "QQ account is invalid!",
+			checkQQ: "QQ account is invalid!Please visit SSO to change your QQ",
 			checkDeprecatedGroups: "Group is not contained in current recruitment",
 			necessary: NecessaryInfoTitleEn,
 			selector: {
@@ -323,7 +323,7 @@ export const i18nConstants = {
 				"请您仔细核对所填写的个人基本信息是否准确无误，并确认所有附件已正确上传。成功报名后，除了所选择的意向组别外，其他信息依然可以修改。",
 			resumePopover: "可以上传简历，作品集等，若要上传多个文件，请自行压缩成.zip。最大大小为20MB",
 			checkInfo: "请填写{key}",
-			checkQQ: "QQ号格式不正确",
+			checkQQ: "QQ号格式不正确，请前往SSO修改QQ",
 			checkDeprecatedGroups: "意向组别不在本次招新范围内，请重新选择",
 			necessary: NecessaryInfoTitle,
 			selector: {
