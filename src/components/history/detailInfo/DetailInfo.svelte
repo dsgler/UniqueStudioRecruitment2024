@@ -26,6 +26,7 @@
 	} from "../../../requests/recruitment/getWrittenTest";
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { getInfo } from "../../../requests/user/getInfo";
+	import { latestDraft } from "../../../stores/latestDraft";
 
 	export let step: UserStep;
 	export let applicationInfo: Application;
@@ -69,6 +70,7 @@
 				})
 				.then((res) => {
 					userInfo.setInfo(res.data);
+					latestDraft.hydrateFromUser(res.data);
 				})
 				.catch(() => {
 					Message.error($t("history.writeTest.uploadError"));

@@ -52,31 +52,47 @@ const getValidatedInitValue = (): ApplicationMutipleGroups | undefined => {
 	return undefined;
 };
 
-//ly: if we just use UserInfoStore, if we change data in  User Page, data in History Page will also change, so this store is just for User Page
-const createLatestApplicationStore = () => {
+// 该 store 只保存“用户资料页编辑草稿”，不是后端真值。
+// 后端真值统一放在 userInfo store。
+const createLatestDraftStore = () => {
 	const initValue = getValidatedInitValue();
-	const { set, subscribe, update } = writable<ApplicationMutipleGroups>(initValue);
-	const setApplication = (userInfo: User) => {
-		const groups = userInfo.applications
+	const { set, subscribe, update } = writable<ApplicationMutipleGroups | undefined>(initValue);
+
+	const persist = (data: ApplicationMutipleGroups | undefined) => {
+		if (!data) {
+			localStorage.removeItem("latest");
+			return;
+		}
+		localStorage.setItem("latest", JSON.stringify(data));
+	};
+
+	const hydrateFromUser = (user: User) => {
+		const latestApplication = user.applications[0];
+		if (!latestApplication) {
+			set(undefined);
+			persist(undefined);
+			return;
+		}
+
+		const groups = user.applications
 			.filter(
 				(app) =>
-					app.recruitment_id === userInfo.applications[0]?.recruitment_id &&
-					!app.rejected &&
-					!app.abandoned
+					app.recruitment_id === latestApplication.recruitment_id && !app.rejected && !app.abandoned
 			)
 			.map((app) => app.group)
 			.filter((g) => g);
 		const info: ApplicationMutipleGroups = {
-			...userInfo.applications[0],
+			...latestApplication,
 			groups,
-			qq_account: userInfo.qq_account
+			qq_account: user.qq_account
 		};
 		set(info);
-		localStorage.setItem("latest", JSON.stringify(info));
+		persist(info);
 	};
-	const updateInfo = (info: EditableInfo) =>
+
+	const patchDraft = (info: EditableInfo) =>
 		update((oldInfo) => {
-			oldInfo = oldInfo ?? ({} as ApplicationMutipleGroups);
+			if (!oldInfo) return oldInfo;
 			const newInfo = produce(oldInfo, (draft) => {
 				Object.keys(info).forEach((key) => {
 					if (key === "groups") {
@@ -86,10 +102,11 @@ const createLatestApplicationStore = () => {
 					}
 				});
 			});
-			localStorage.setItem("latest", JSON.stringify(newInfo));
+			persist(newInfo);
 			return newInfo;
 		});
-	return { subscribe, setApplication, updateInfo };
+
+	return { subscribe, hydrateFromUser, patchDraft };
 };
 
-export const latestInfo = createLatestApplicationStore();
+export const latestDraft = createLatestDraftStore();

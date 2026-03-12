@@ -27,6 +27,7 @@
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { writable } from "svelte/store";
 	import { getInfo } from "../../../requests/user/getInfo";
+	import { latestDraft } from "../../../stores/latestDraft";
 
 	$: myWrittenTestAnswer = $userInfo?.applications[0]?.answer.split("/").at(-1);
 	enum WrittenTestType {
@@ -110,6 +111,7 @@
 				})
 				.then((res) => {
 					userInfo.setInfo(res.data);
+					latestDraft.hydrateFromUser(res.data);
 				})
 				.catch(() => {
 					Message.error($t("history.writeTest.uploadError"));
@@ -126,6 +128,7 @@
 		await getInfo().then((res) => {
 			// 注意这里必须要reset userinfo，不然下一次点进来显示不对
 			userInfo.setInfo(res.data);
+			latestDraft.hydrateFromUser(res.data);
 			onCancel();
 		});
 	};
