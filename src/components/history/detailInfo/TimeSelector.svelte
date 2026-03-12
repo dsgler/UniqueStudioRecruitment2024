@@ -15,6 +15,10 @@
 	import { localeLanguage } from "../../../stores/localeLanguage";
 	import { isMobile } from "../../../stores/isMobile";
 	import { allocateInterviewTime } from "../../../requests/application/allocateApplications";
+	import { createEventDispatcher } from "svelte";
+
+	// 自定义事件
+	const dispatch = createEventDispatcher<{ reloadTimes: void }>();
 
 	//ly: type 'SingleTime' is the return-type of backend, type 'InterviewTime' is the useful type when rendering UI
 	export let times: SingleTime[] = [];
@@ -74,6 +78,7 @@
 				.then(() => {
 					selectedTimes = [uuid];
 					Message.success($t("history.timeSelector.chooseSuccess"));
+					dispatch("reloadTimes");
 				})
 				.catch(() => {
 					Message.error($t("history.timeSelector.chooseFailed"));

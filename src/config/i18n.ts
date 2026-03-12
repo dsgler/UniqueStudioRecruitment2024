@@ -233,7 +233,7 @@ export const i18nConstants = {
 				urlTips: "请点击进入问卷链接进行作答"
 			},
 			timeSelector: {
-				confirmSelection: "你确定要选择这个时间吗？",
+				confirmSelection: "请确认您的面试时间。提交之后请尽量避免后期改动，感谢配合。",
 				chooseSuccess: "修改成功",
 				chooseFailed: "修改失败",
 				noTime: "暂无可供选择的时间",
