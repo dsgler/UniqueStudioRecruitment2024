@@ -1,4 +1,6 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-at-html-tags */
+
 	import { fade, fly } from "svelte/transition";
 	import UserInfoTitle from "../components/user/UserInfoTitle.svelte";
 	import SingleInputInfo from "../components/user/SingleInputInfo.svelte";

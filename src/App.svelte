@@ -89,6 +89,7 @@
 					latestInfo.updateInfo({
 						groups: $latestInfo?.groups || [],
 						qq_account: res.data.qq_account
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					} as any);
 				}
 			})

@@ -1,4 +1,5 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-at-html-tags */
 	import { push } from "svelte-spa-router";
 	import { Group } from "../../../config/const";
 	import Button from "../../public/Button.svelte";
@@ -162,22 +163,20 @@
 	{#if step === $t("history.step.SignUp")}
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 		<p on:click={handleClick}>
-			{#if applicationInfo?.recruitment_id === $recruitment.uid}
-				{$t("history.signUpTips.SignInTips", {
-					group: Group[applicationInfo.group],
-					recruitment: $parseTitle($recruitment.name)
-				}).split("{changeInfo}")[0]}<span class="go-user cursor-pointer text-blue-300 underline"
-					>{$t("history.signUpTips.changeInfo")}</span
-				>{$t("history.signUpTips.SignInTips", {
-					group: Group[applicationInfo.group],
-					recruitment: $parseTitle($recruitment.name)
-				}).split("{changeInfo}")[1] || ""}
-			{:else}
-				{$t("history.signUpTips.notSignInTips").split("{changeInfo}")[0]}<span
-					class="go-user cursor-pointer text-blue-300 underline"
-					>{$t("history.signUpTips.changeInfo")}</span
-				>{$t("history.signUpTips.notSignInTips").split("{changeInfo}")[1] || ""}
-			{/if}
+			{@html $userInfo.applications[0]?.recruitment_id === $recruitment.uid
+				? $t("history.signUpTips.SignInTips", {
+						changeInfo: `<span
+         class="text-blue-300 underline cursor-pointer go-user">${$t("history.signUpTips.changeInfo")}</span
+      >`,
+						group: Group[$userInfo.applications[0]?.group],
+						recruitment: $parseTitle($recruitment.name)
+					})
+				: $t("history.signUpTips.notSignInTips", {
+						changeInfo: `<span
+        
+        class="text-blue-300 underline cursor-pointer go-user">${$t("history.signUpTips.changeInfo")}</span
+      >`
+					})}
 		</p>
 	{:else if step === $t("history.step.WrittenTest")}
 		<p>{$t("history.writeTest.tips")}</p>
@@ -199,11 +198,13 @@
 		{/if}
 		{#if writtenTestLink}
 			<p class="mt-[0.5rem]">
-				{$t("history.writeTest.viewLink").split("{writtenTest}")[0]}<a
-					class=" text-blue-300 underline"
-					href={writtenTestLink}
-					download={$t("history.step.WrittenTest")}>{$t("history.writeTest.writtenTest")}</a
-				>{$t("history.writeTest.viewLink").split("{writtenTest}")[1] || ""}
+				{@html $t("history.writeTest.viewLink", {
+					writtenTest: `<a
+        class=" text-blue-300 underline"
+        href=${writtenTestLink}
+        download=${$t("history.step.WrittenTest")}>${$t("history.writeTest.writtenTest")}</a
+      >`
+				})}
 			</p>
 			{#if writtenTestType === WrittenTestType.Url}
 				<p class="text-gray-500 mt-[0.5rem]">{$t("history.writeTest.urlTips")}</p>
