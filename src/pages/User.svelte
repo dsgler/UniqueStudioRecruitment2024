@@ -187,22 +187,8 @@
 						</Popover>
 					</div>
 				{:else}
-					<div
-						on:click={() => {
-							editMode.in();
-						}}
-						class={cx([
-							"ml-auto flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]",
-							$editMode && "hidden"
-						])}
-					>
-						<img src={edit} class="max-sm:hidden" alt="edit" />
-						<p class="text-blue-300 max-sm:text-xs">{$t("user.edit")}</p>
-					</div>
-				{/if}
-			</div>
-			<div class="mb-[1rem] flex w-full -translate-y-2 flex-row-reverse">
-				{#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+					<div class="ml-auto flex flex-row-reverse items-center gap-[1rem] max-sm:gap-[0.5rem]">
+						{#if $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
 					<Popover style="white" direct="top" questionDirection="end">
 						<Button
 							onClick={() => (showSignUpModal = true)}
@@ -216,6 +202,17 @@
 							})}
 						</p>
 					</Popover>
+						{/if}
+						<div
+							on:click={() => {
+								editMode.in();
+							}}
+							class="flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]"
+						>
+							<img src={edit} class="max-sm:hidden" alt="edit" />
+							<p class="text-blue-300 max-sm:text-xs">{$t("user.edit")}</p>
+						</div>
+					</div>
 				{/if}
 			</div>
 			{#if $editMode}
