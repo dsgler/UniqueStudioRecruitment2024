@@ -287,35 +287,32 @@
 						</Popover>
 					</div>
 				{:else}
-					<div
-						on:click={() => {
-							editMode.in();
-						}}
-						class={cx([
-							"ml-auto flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]",
-							$editMode && "hidden"
-						])}
-					>
-						<img src={edit} class="max-sm:hidden" alt="edit" />
-						<p class="text-blue-300 max-sm:text-xs">{$t("user.edit")}</p>
-					</div>
-				{/if}
-			</div>
-			<div class="mb-[1rem] flex w-full -translate-y-2 flex-row-reverse">
-				{#if !$editMode && $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
-					<Popover style="white" direct="top" questionDirection="end">
-						<Button
-							onClick={() => (showSignUpModal = true)}
-							slot="children"
-							className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
-							highlight>{$t("user.signUp")}</Button
+					<div class="ml-auto flex flex-row-reverse items-center gap-[1rem] max-sm:gap-[0.5rem]">
+						{#if $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
+							<Popover style="white" direct="top" questionDirection="end">
+								<Button
+									onClick={() => (showSignUpModal = true)}
+									slot="children"
+									className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
+									highlight>{$t("user.signUp")}</Button
+								>
+								<p class="w-[142px]" slot="content">
+									{$t("user.signUpConfirm", {
+										recruitment: $parseTitle($recruitment.name)
+									})}
+								</p>
+							</Popover>
+						{/if}
+						<div
+							on:click={() => {
+								editMode.in();
+							}}
+							class="flex h-[28px] cursor-pointer items-center gap-[0.25rem] rounded-full bg-blue-100 p-[7px_20px] text-sm text-blue-400 max-sm:w-[88px] max-sm:justify-center max-sm:p-[3px_12px]"
 						>
-						<p class="w-[142px]" slot="content">
-							{$t("user.signUpConfirm", {
-								recruitment: $parseTitle($recruitment.name)
-							})}
-						</p>
-					</Popover>
+							<img src={edit} class="max-sm:hidden" alt="edit" />
+							<p class="text-blue-300 max-sm:text-xs">{$t("user.edit")}</p>
+						</div>
+					</div>
 				{/if}
 			</div>
 			{#if $editMode}
@@ -377,12 +374,15 @@
 					errorMessage={qqError}
 					name={$t("user.qq")}
 					bind:content={qq_account}
+					tips={$t("user.changeUserInfoTip")}
 					isDisabled={true}
 				/>
 				<SingleInputInfo
 					necessary
 					name={$t("user.phone")}
 					bind:content={$userInfo.phone}
+					tips={$t("user.changeUserInfoTip")}
+					editMode={$editMode}
 					isDisabled={true}
 				/>
 				<SingleInputInfo
@@ -399,7 +399,12 @@
 					bind:content={referrer}
 				/>
 				<div class="col-span-1 max-w-full gap-[1rem]">
-					<Popover style="white" direct="left-top" className="w-full max-sm:mt-[-1.5rem]">
+					<Popover
+						style="white"
+						direct="left-top"
+						questionDirection="end"
+						className="w-full max-sm:mt-[-1.5rem]"
+					>
 						<MultiSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
 							slot="children"
@@ -420,7 +425,12 @@
 					</Popover>
 				</div>
 				<div class="col-span-1 max-w-full gap-[1rem]">
-					<Popover style="white" direct="left-top" className="w-full max-sm:mt-[-1.5rem]">
+					<Popover
+						style="white"
+						direct="left-top"
+						questionDirection="end"
+						className="w-full max-sm:mt-[-1.5rem]"
+					>
 						<SingleSelectInfo
 							className="flex-shrink-0 max-sm:w-[calc(100%_-_24px)]"
 							slot="children"
