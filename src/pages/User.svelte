@@ -77,8 +77,10 @@
 
 	$: groupGroupTitles = $t("user.selector.groupGroup") as unknown as [string, string];
 
+	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
+
 	const downloadResume = () => {
-		getResume(uid, $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历");
+		getResume(uid, downloadResumeName);
 	};
 	const closeEditMode = () => {
 		({
@@ -404,8 +406,9 @@
 					>
 						<img src={word} alt="简历" />
 						{#await getRecruitmentById($userInfo.applications[0]?.recruitment_id) then res}
-							<p class="max-sm:text-sm">
-								{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}
+							<p class="text-center max-sm:text-sm">
+								{$parseTitle(res.data.name)}-{$userInfo.name}-{$t("user.resume")}<br />
+								<span class="text-gray-300"> {downloadResumeName}</span>
 							</p>
 						{/await}
 					</div>
