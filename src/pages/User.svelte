@@ -77,10 +77,7 @@
 	$: hasAppliedCurrentRecruitment =
 		!!$recruitment && $userInfo?.applications[0]?.recruitment_id === $recruitment.uid;
 	$: canShowSaveTips = hasAppliedCurrentRecruitment && !$userInfo.applications[0]?.rejected;
-	$: isRecruitmentOpen =
-		!!$recruitment &&
-		new Date().getTime() >= new Date($recruitment.beginning).getTime() &&
-		new Date().getTime() <= new Date($recruitment.deadline).getTime();
+
 
 	$: downloadResumeName = $userInfo?.applications[0]?.resume?.split("/").pop() || "个人简历";
 
@@ -189,19 +186,19 @@
 				{:else}
 					<div class="ml-auto flex flex-row-reverse items-center gap-[1rem] max-sm:gap-[0.5rem]">
 						{#if $recruitment && $recruitment.uid !== $userInfo.applications[0]?.recruitment_id && new Date().getTime() >= new Date($recruitment.beginning).getTime() && new Date().getTime() <= new Date($recruitment.deadline).getTime()}
-					<Popover style="white" direct="top" questionDirection="end">
-						<Button
-							onClick={() => (showSignUpModal = true)}
-							slot="children"
-							className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
-							highlight>{$t("user.signUp")}</Button
-						>
-						<p class="w-[142px]" slot="content">
-							{$t("user.signUpConfirm", {
-								recruitment: $parseTitle($recruitment.name)
-							})}
-						</p>
-					</Popover>
+							<Popover style="white" direct="top" questionDirection="end">
+								<Button
+									onClick={() => (showSignUpModal = true)}
+									slot="children"
+									className="sm:p-[7px_30px] max-sm:text-xs max-sm:w-[88px] max-sm:h-[28px] max-sm:leading-[28px] text-sm rounded-full"
+									highlight>{$t("user.signUp")}</Button
+								>
+								<p class="w-[142px]" slot="content">
+									{$t("user.signUpConfirm", {
+										recruitment: $parseTitle($recruitment.name)
+									})}
+								</p>
+							</Popover>
 						{/if}
 						<div
 							on:click={() => {
