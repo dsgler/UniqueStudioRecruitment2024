@@ -26,8 +26,6 @@
 	} from "../../../requests/recruitment/getWrittenTest";
 	import { globalLoading } from "../../../stores/globalLoading";
 	import { writable } from "svelte/store";
-	import { getInfo } from "../../../requests/user/getInfo";
-	import { latestDraft } from "../../../stores/latestDraft";
 
 	$: myWrittenTestAnswer = $userInfo?.applications[0]?.answer.split("/").at(-1);
 	enum WrittenTestType {
@@ -107,11 +105,7 @@
 				.then(() => {
 					Message.success($t("history.writeTest.uploadSuccess"));
 					file = undefined;
-					return getInfo();
-				})
-				.then((res) => {
-					userInfo.setInfo(res.data);
-					latestDraft.hydrateFromUser(res.data);
+					return userInfo.refresh();
 				})
 				.catch(() => {
 					Message.error($t("history.writeTest.uploadError"));
@@ -125,12 +119,9 @@
 
 	export let onCancel: () => void;
 	const onSaveAndCancel = async () => {
-		await getInfo().then((res) => {
-			// 注意这里必须要reset userinfo，不然下一次点进来显示不对
-			userInfo.setInfo(res.data);
-			latestDraft.hydrateFromUser(res.data);
-			onCancel();
-		});
+		// 注意这里必须要刷新 userInfo，不然下一次点进来显示不对
+		// await userInfo.refresh();
+		onCancel();
 	};
 	onMount(async () => {
 		if (step === $t("history.step.WrittenTest")) {
